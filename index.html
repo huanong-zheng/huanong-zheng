@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <title>Matrix 2026 | Ver.2.4 Absolute</title>
+    <title>Matrix 2026 | Ver.2.6 Final Integrity</title>
     <style>
         :root {
             --apple-text: #1D1D1F;
@@ -28,6 +28,12 @@
             font-size: 9px; font-weight: 600; color: var(--sub-text);
             letter-spacing: 0.15em; text-transform: uppercase;
             border-left: 1px solid var(--accent-color); padding-left: 12px;
+        }
+
+        .map-disclaimer {
+            position: absolute; bottom: 20px; left: 50px; z-index: 100;
+            font-size: 8px; line-height: 1.6; color: #d2d2d7;
+            max-width: 420px; font-weight: 500; letter-spacing: 0.02em;
         }
 
         .brand-switcher {
@@ -65,6 +71,10 @@
         #node-ny { top: 38%; left: 25%; } #node-london { top: 30%; left: 47%; } #node-milan { top: 35%; left: 51%; }
         #node-lagos { top: 68%; left: 45%; } #node-shanghai { top: 48%; left: 75%; } #node-tokyo { top: 45%; left: 81%; }
 
+        .legend-area { position: absolute; bottom: 80px; left: 50px; z-index: 100; display: flex; gap: 40px; border-top: 1px solid #eee; padding-top: 20px; }
+        .legend-item { display: flex; flex-direction: column; gap: 8px; }
+        .legend-header { display: flex; align-items: center; gap: 8px; font-size: 10px; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; }
+
         #report-layer {
             position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
             background-color: var(--white); z-index: 2000; display: none; justify-content: center;
@@ -90,15 +100,6 @@
         .raw-og { font-size: 12px; color: var(--origin-text); line-height: 1.5; font-style: italic; }
 
         .footer-logo { font-size: 12px; font-weight: 800; letter-spacing: 0.3em; text-transform: uppercase; border-top: 1px solid #000; padding-top: 20px; margin-top: 60px; }
-
-        @media print {
-            .download-btn, .close-report-btn, .brand-switcher { display: none !important; }
-            #report-layer { position: static; display: block; opacity: 1; }
-            .report-wrapper { padding: 40px; width: 100%; }
-            body { overflow: visible; }
-            .raw-grid-rep { display: block; }
-            .raw-item-rep { margin-bottom: 40px; page-break-inside: avoid; }
-        }
     </style>
 </head>
 <body>
@@ -118,7 +119,7 @@
         
         <div class="map-time-badge">
             Intelligence Window: Last 48 Hours<br>
-            <span id="current-utc" style="font-weight: 400; opacity: 0.7;">UTC 2026-03-06 16:15:00</span>
+            <span id="current-utc" style="font-weight: 400; opacity: 0.7;">UTC 2026-03-06 18:45:00</span>
         </div>
 
         <div id="node-ny" class="city-node" onclick="openDirectReport('New York')"><div class="node-outer"></div><div class="node-inner" style="background:var(--accent-color)"></div><div class="city-label">New York</div></div>
@@ -127,6 +128,15 @@
         <div id="node-lagos" class="city-node" onclick="openDirectReport('Lagos')"><div class="node-outer"></div><div class="node-inner" style="background:var(--accent-color)"></div><div class="city-label">Lagos</div></div>
         <div id="node-shanghai" class="city-node" onclick="openDirectReport('Shanghai')"><div class="node-outer"></div><div class="node-inner" style="background:var(--accent-color)"></div><div class="city-label">Shanghai</div></div>
         <div id="node-tokyo" class="city-node" onclick="openDirectReport('Tokyo')"><div class="node-outer"></div><div class="node-inner" style="background:var(--accent-color)"></div><div class="city-label">Tokyo</div></div>
+
+        <div class="legend-area">
+            <div class="legend-item"><div class="legend-header" style="color:var(--matrix-red)"><span class="legend-dot" style="background:var(--matrix-red); width:8px; height:8px; border-radius:50%; display:inline-block; margin-right:8px;"></span>Critical</div></div>
+            <div class="legend-item"><div class="legend-header" style="color:var(--sub-text)"><span class="legend-dot" style="background:var(--sub-text); width:8px; height:8px; border-radius:50%; display:inline-block; margin-right:8px;"></span>Stagnant</div></div>
+        </div>
+
+        <div class="map-disclaimer">
+            DISCLAIMER: This system visualizes intelligence based on AI-driven simulations. The "Raw Voices" displayed are synthetic data points generated to reflect collective sentiments derived from objective socio-economic trends. They do not represent the actual posts of any specific individuals or entities.
+        </div>
     </div>
 
     <div id="report-layer">
@@ -150,286 +160,34 @@
 
         const cityDatabase = {
             'Tokyo': {
-                'Economy': {
-                    summary: "「静かなる困窮」。実質賃金の低下が、具体的な『食の選択肢』の喪失として現れている。何も変わらないことが、この国で最も恐ろしい安定となっている。",
-                    feeds: [
-                        {jp: "働いても手取りが増えない。節約ではなく生存だ。", og: "働いても手取りが増えない。節約ではなく生存だ。", src: "X / Japan", time: "2h ago"},
-                        {jp: "コンビニの弁当がまた上がった。10円単位の戦いだ。", og: "コンビニの弁当がまた上がった。10円単位の戦いだ。", src: "Reddit / Tokyo", time: "4h ago"},
-                        {jp: "投資をしないと損という空気。でも余力がない。", og: "投資をしないと損という空気。でも余力がない。", src: "Yahoo Finance", time: "6h ago"},
-                        {jp: "中古市場やポイ活が唯一の娯楽。賢い消費が生存戦略。", og: "中古市場やポイ活が唯一の娯楽。賢い消費が生存戦略。", src: "X / Japan", time: "8h ago"},
-                        {jp: "電気代の請求を見るのが怖い。夏を越せる自信がない。", og: "電気代の請求を見るのが怖い。夏を越せる自信がない。", src: "News Comment", time: "12h ago"},
-                        {jp: "日本は安いと観光客は言う。私たちは自国で最下層だ。", og: "日本は安いと観光客は言う。私たちは自国で最下層だ。", src: "Reddit / Japan", time: "15h ago"},
-                        {jp: "昇給があっても社会保険料で消える。実質的な減税などない。", og: "昇給があっても社会保険料で消える。実質的な減税などない。", src: "X / Finance", time: "18h ago"},
-                        {jp: "スーパーの特売日をハシゴ。時間が奪われていく感覚。", og: "スーパーの特売日をハシゴ。時間が奪われていく感覚。", src: "Blog Feed", time: "21h ago"},
-                        {jp: "老後の蓄えなんて無理。今を生き延びるだけで精一杯。", og: "老後の蓄えなんて無理。今を生き延びるだけで精一杯。", src: "Reddit / Life", time: "1d ago"},
-                        {jp: "若者が海外へ逃げる。ここには希望のインフレがない。", og: "若者が海外へ逃げる。ここには希望のインフレがない。", src: "YouTube / Tokyo", time: "1d ago"}
-                    ]
-                },
-                'Society': {
-                    summary: "「希薄化する共同体」。物理的な繋がりがコストと化し、人々はデジタル空間へ逃避している。",
-                    feeds: [
-                        {jp: "隣に誰が住んでいるか知らない。それがこの街の『礼儀』だ。", og: "隣に誰が住んでいるか知らない。それがこの街の『礼儀』だ。", src: "X / Society", time: "3h ago"},
-                        {jp: "SNSのフォロワーは増えるが、深夜に電話できる相手はいない。", og: "SNSのフォロワーは増えるが、深夜に電話できる相手はいない。", src: "Blog", time: "5h ago"},
-                        {jp: "孤独死のニュースが日常。明日は我が身という感覚。", og: "孤独死のニュースが日常。明日は我が身という感覚。", src: "Local News", time: "7h ago"},
-                        {jp: "飲み会を断るのが当たり前に。社交というコストが重い。", og: "飲み会を断るのが当たり前に。社交というコストが重い。", src: "X / Japan", time: "9h ago"},
-                        {jp: "公園から子供の声が消えた。苦情がコミュニティを壊す。", og: "公園から子供の声が消えた。苦情がコミュニティを壊す。", src: "Community Board", time: "12h ago"},
-                        {jp: "誰とも話さない一日。セルフレジだけが相手だ。", og: "誰とも話さない一日。セルフレジだけが相手だ。", src: "Diary", time: "15h ago"},
-                        {jp: "家族という形も崩れ始めた。一人暮らしの高齢者が溢れる。", og: "家族という形も崩れ始めた。一人暮らしの高齢者が溢れる。", src: "Reddit", time: "18h ago"},
-                        {jp: "ネットの誹謗中傷がリアルよりリアル。言葉が刺さる。", og: "ネットの誹謗中傷がリアルよりリアル。言葉が刺さる。", src: "X", time: "21h ago"},
-                        {jp: "対面より文字のほうが安心する。人間の生々しさが怖い。", og: "対面より文字のほうが安心する。人間の生々しさが怖い。", src: "Life Blog", time: "1d ago"},
-                        {jp: "孤独は自由だと言い聞かせている。そうしないと壊れる。", og: "孤独は自由だと言い聞かせている。そうしないと壊れる。", src: "Reddit / Tokyo", time: "1d ago"}
-                    ]
-                },
-                'Future': {
-                    summary: "「期待値ゼロの均衡」。現状維持に全力が注がれている。",
-                    feeds: [
-                        {jp: "30年後の自分を想像できない。想像すると絶望しかない。", og: "30年後の自分を想像できない。想像すると絶望しかない。", src: "Reddit", time: "4h ago"},
-                        {jp: "AIが仕事を奪う前に、やる気が先に尽きてしまった。", og: "AIが仕事を奪う前に、やる気が先に尽きてしまった。", src: "YouTube", time: "6h ago"},
-                        {jp: "年金はもらえないものとして計算。国家への信頼はない。", og: "年金はもらえないものとして計算。国家への信頼はない。", src: "Finance News", time: "8h ago"},
-                        {jp: "子供を産むのは贅沢品。招く責任を持てない。", og: "子供を産むのは贅沢品。招く責任を持てない。", src: "X / Parenting", time: "10h ago"},
-                        {jp: "選挙に行っても何も変わらない。システムは高齢者のため。", og: "選挙に行っても何も変わらない。システムは高齢者のため。", src: "Political Blog", time: "13h ago"},
-                        {jp: "日本という沈みゆく船から、賢い人から順に脱出している。", og: "日本という沈みゆく船から、賢い人から順に脱出している。", src: "LinkedIn", time: "16h ago"},
-                        {jp: "『いつか良くなる』という言葉が、最も空虚に響く。", og: "『いつか良くなる』という言葉が、最も空虚に響く。", src: "Reddit / Life", time: "19h ago"},
-                        {jp: "自分たちは、ただ後始末をするために生まれてきた気がする。", og: "自分たちは、ただ後始末をするために生まれてきた気がする。", src: "X / Generation", time: "22h ago"},
-                        {jp: "テクノロジーは進歩するが、心は退歩しているのではないか。", og: "テクノロジーは進歩するが、心は退歩しているのではないか。", src: "Medium", time: "1d ago"},
-                        {jp: "未来なんて来なくていい。ずっと今日が続けばいいのに。", og: "未来なんて来なくていい。ずっと今日が続けばいいのに。", src: "Reddit / Tokyo", time: "1d ago"}
-                    ]
-                }
+                'Economy': { summary: "「静かなる困窮」。実質賃金の低下が、具体的な『食の選択肢』の喪失として現れている。", feeds: [{jp: "働いても手取りが増えない。生存のための取捨選択だ。", og: "働いても手取りが増えない。生存のための取捨選択だ。", src: "X", time: "2h ago"},{jp: "コンビニの弁当がまた上がった。10円単位の戦いだ。", og: "コンビニの弁当がまた上がった。10円単位の戦いだ。", src: "Reddit", time: "4h ago"},{jp: "投資をしないと損という空気。でも余力がない。", og: "投資をしないと損という空気。でも余力がない。", src: "Finance", time: "6h ago"},{jp: "中古市場やポイ活が唯一の娯楽。賢い消費が生存戦略。", og: "中古市場やポイ活が唯一の娯楽。賢い消費が生存戦略。", src: "X", time: "8h ago"},{jp: "電気代の請求を見るのが怖い。夏を越せる自信がない。", og: "電気代の請求を見るのが怖い。夏を越せる自信がない。", src: "News", time: "12h ago"},{jp: "日本は安いと観光客は言う。私たちは自国で最下層だ。", og: "日本は安いと観光客は言う。私たちは自国で最下層だ。", src: "Reddit", time: "15h ago"},{jp: "昇給があっても社会保険料で消える。実質的な減税などない。", og: "昇給があっても社会保険料で消える。実質的な減税などない。", src: "X", time: "18h ago"},{jp: "スーパーの特売日をハシゴ。時間が奪われていく感覚。", og: "スーパーの特売日をハシゴ。時間が奪われていく感覚。", src: "Blog", time: "21h ago"},{jp: "老後の蓄えなんて無理。今を生き延びるだけで精一杯。", og: "老後の蓄えなんて無理。今を生き延びるだけで精一杯。", src: "Reddit", time: "1d ago"},{jp: "若者が海外へ逃げる。ここには希望のインフレがない。", og: "若者が海外へ逃げる。ここには希望のインフレがない。", src: "YouTube", time: "1d ago"}]},
+                'Society': { summary: "「希薄化する共同体」。人々はデジタル空間へ逃避している。", feeds: [{jp: "隣に誰が住んでいるか知らない。それが礼儀だ。", og: "I don't know my neighbor. That's etiquette.", src: "X", time: "3h ago"},{jp: "SNSのフォロワーは増えるが、心は虚しい。", og: "Followers up, but heart is empty.", src: "Blog", time: "5h ago"},{jp: "孤独死のニュースが日常。明日は我が身か。", og: "Lonely deaths are news daily.", src: "Local News", time: "7h ago"},{jp: "飲み会を断るのが当たり前に。社交コストが重い。", og: "Saying no to drinks is norm now.", src: "X", time: "9h ago"},{jp: "公園から子供の声が消えた。静寂がコミュニティを殺す。", og: "Silence kills the community.", src: "Community Board", time: "12h ago"},{jp: "誰とも話さない一日。セルフレジが唯一の対話相手。", og: "No one to talk to all day.", src: "Diary", time: "15h ago"},{jp: "家族という形も崩れ始めた。一人暮らしの高齢者が溢れる。", og: "Family structure collapsing.", src: "Reddit", time: "18h ago"},{jp: "ネットの誹謗中傷がリアルよりリアルだ。", og: "Online hate is more real than reality.", src: "X", time: "21h ago"},{jp: "人間の生々しさが怖い。文字の方が安心する。", og: "Raw humans are scary.", src: "Life Blog", time: "1d ago"},{jp: "孤独は自由だと言い聞かせないと壊れてしまう。", og: "Loneliness is freedom.", src: "Reddit", time: "1d ago"}]},
+                'Future': { summary: "「期待値ゼロの均衡」。現状維持に全力が注がれている。", feeds: [{jp: "30年後の自分を想像できない。想像すると絶望しかない。", og: "No future to imagine.", src: "Reddit", time: "4h ago"},{jp: "AIが仕事を奪う前に、自分のやる気が尽きた。", og: "Motivation gone before AI takes job.", src: "YouTube", time: "6h ago"},{jp: "年金はもらえないものとして計算している。", og: "Counting without pension.", src: "Finance News", time: "8h ago"},{jp: "子供を産むのは贅沢品だ。この世界に招く責任を持てない。", og: "Having kids is a luxury.", src: "X", time: "10h ago"},{jp: "選挙に行っても何も変わらない。システムは高齢者のためだ。", og: "Voting changes nothing.", src: "Blog", time: "13h ago"},{jp: "日本という沈みゆく船から、賢い人から順に脱出している。", og: "Sinking ship Japan.", src: "LinkedIn", time: "16h ago"},{jp: "『いつか良くなる』という言葉が空虚に響く。", og: "'Better days' sounds hollow.", src: "Reddit", time: "19h ago"},{jp: "後始末をするために生まれてきた気がする。", og: "Born to clean up the mess.", src: "X", time: "22h ago"},{jp: "テクノロジーは進歩するが、心は退歩しているのではないか。", og: "Hearts regressing.", src: "Medium", time: "1d ago"},{jp: "未来なんて来なくていい。ずっと今日が続けばいいのに。", og: "No need for future.", src: "Reddit", time: "1d ago"}]}
             },
             'Shanghai': {
-                'Economy': {
-                    summary: "「中産階級の資産防衛」。住宅価値の不透明さが最大の不安要素。消極的な抵抗『寝そべり』が定着。",
-                    feeds: [
-                        {jp: "資産のほとんどが不動産。売れない家を持つリスク。", og: "大部分财富都在房产里。拿着卖不掉的房子真可怕。", src: "Weibo", time: "1h ago"},
-                        {jp: "35歳定年説。リストラされたらローンが払えない。", og: "35岁中年危机。如果被裁员，房贷怎么办？", src: "Zhihu", time: "3h ago"},
-                        {jp: "寝そべりは諦めではない。システムに対する非暴力的な抵抗だ。", og: "躺平不是放弃，而是对系统的一种非暴力抵抗。", src: "WeChat", time: "5h ago"},
-                        {jp: "今は貯蓄。派手な消費より、確実な現金確保が正解だ。", og: "现在存钱才是王道。现金比虚假消费更可靠。", src: "Xiaohongshu", time: "7h ago"},
-                        {jp: "上海のネオンは眩しすぎるが、私の未来を照らしていない。", og: "上海的霓虹灯很亮，但照不亮我的未来。", src: "Weibo", time: "9h ago"},
-                        {jp: "外資系企業が去っていく。オフィスが空洞化している。", og: "外企都在撤离。写字楼越来越空了。", src: "Finance News", time: "12h ago"},
-                        {jp: "かつての勢いはどこへ？今の上海はどこか息苦しい。", og: "以前的活力哪儿去了？现在的上海让人喘不过气。", src: "Zhihu", time: "16h ago"},
-                        {jp: "子供の教育費は天井知らず。これ以上何を削ればいい？", og: "孩子的教育费是个无底洞。还能削减什么？", src: "Xiaohongshu", time: "20h ago"},
-                        {jp: "資産価値が下がるのを、ただ黙って見守るしかない。", og: "眼睁睁看着资产贬值，这种无力感真难受。", src: "Weibo", time: "1d ago"},
-                        {jp: "自由な消費ができるのは、もう一部の特権階級だけだ。", og: "能自由消费的，现在只剩下那一小撮特权阶层了。", src: "Zhihu", time: "1d ago"}
-                    ]
-                },
-                'Society': {
-                    summary: "「過剰競争の疲弊」。数値化された成功への強迫観念が、人間関係を効率性の道具に変えている。",
-                    feeds: [
-                        {jp: "SNSのいいねが、唯一の社会的な生存証明だ。", og: "社交媒体上的点赞，是我唯一的社会生存证明。", src: "Weibo", time: "2h ago"},
-                        {jp: "友達との会話も、どこか利益の交換のように感じる。", og: "和朋友聊天也感觉像是在进行利益交换。", src: "Zhihu", time: "4h ago"},
-                        {jp: "結婚は愛ではなく、資産合併になった。", og: "结婚不再是因为爱，而是两家人的资产合并。", src: "WeChat", time: "6h ago"},
-                        {jp: "常に誰かと比較されている。終わりはない。", og: "永远在和别人比较。这场竞赛没有尽头。", src: "Xiaohongshu", time: "8h ago"},
-                        {jp: "孤独を感じても、弱さを見せることは敗北を意味する。", og: "即便感到孤独，展示软弱也意味着失败。", src: "Weibo", time: "11h ago"},
-                        {jp: "親の期待が重すぎて、自分の顔を失ってしまった。", og: "父母的期待太重了，我已经失去了自我。", src: "Diary", time: "14h ago"},
-                        {jp: "雑踏の中で、自分だけが透明人間になった気分だ。", og: "在人群中，感觉自己像个透明人。", src: "Weibo", time: "17h ago"},
-                        {jp: "信頼できるのは自分のお金だけ。人はいつか裏切る。", og: "唯一能信任的是自己的钱。人总会背叛的。", src: "Zhihu", time: "20h ago"},
-                        {jp: "効率化された社会で、無駄な感情は切り捨てられる。", og: "在这个高效的社会里，无用的情感都被抛弃了。", src: "Medium", time: "23h ago"},
-                        {jp: "誰もが成功を急いでいる。立ち止まることは罪だ。", og: "每个人都在急于成功。停下来就是一种罪过。", src: "Weibo", time: "1d ago"}
-                    ]
-                },
-                'Future': {
-                    summary: "「成長神話の終焉」。若者は低体温な安定を求め始めている。",
-                    feeds: [
-                        {jp: "公務員試験が一番の競争。不確実な未来より現状を。", og: "考公是唯一的出路。比起不确定的未来，还是抓住现在。", src: "Zhihu", time: "3h ago"},
-                        {jp: "AIが進化しても、生活が楽になる予感がしない。", og: "AI再怎么进化，也没感觉生活会变轻松。", src: "Tech News", time: "5h ago"},
-                        {jp: "かつての『チャイナドリーム』は教科書の中だけの話。", og: "以前的“中国梦”现在只存在于教科书里。", src: "Weibo", time: "8h ago"},
-                        {jp: "未来を語るより、今日の晩御飯をどう安く済ませるかだ。", og: "与其谈论未来，不如想想今晚怎么吃得省钱。", src: "Xiaohongshu", time: "11h ago"},
-                        {jp: "環境問題より、来月の自分の雇用形態のほうが大事だ。", og: "与其关心环境，不如关心下个月的合同怎么签。", src: "Zhihu", time: "14h ago"},
-                        {jp: "大きな変化は望まない。今の生活が維持されればいい。", og: "不再渴望大变化。只要现在的日子能维持下去就好。", src: "WeChat", time: "17h ago"},
-                        {jp: "海外へ行く友人が増えた。挑戦する場所ではないのか。", og: "出国的同学越来越多。这里已经不适合奋斗了吗？", src: "LinkedIn", time: "20h ago"},
-                        {jp: "夢を見るコストが高すぎ。現実を見るのが精一杯だ。", og: "做梦的成本太高了。看清现实就已经拼尽全力。", src: "Weibo", time: "23h ago"},
-                        {jp: "テクノロジーの監視で、未来は管理された一本道だ。", og: "在技术监控下，未来看起来像是一条被管好的单行道。", src: "Tech Blog", time: "1d ago"},
-                        {jp: "新しい時代が来るというが、それが私たちのためのものか？", og: "都说新时代要来了，但那是属于我们的吗？", src: "Zhihu", time: "1d ago"}
-                    ]
-                }
+                'Economy': { summary: "「中産階級の資産防衛」。住宅価値の不透明さが最大の不安要素。", feeds: [{jp: "資産のほとんどが不動産。売れないリスクが怖い。", og: "财富都在房产里。拿着卖不掉真可怕。", src: "Weibo", time: "1h ago"},{jp: "35歳定年説。リストラされたらローンが払えない。", og: "35岁中年危机。裁员房贷怎么办？", src: "Zhihu", time: "3h ago"},{jp: "寝そべりはシステムに対する抵抗だ。", og: "躺平是对系统的一种抵抗。", src: "WeChat", time: "5h ago"},{jp: "今は貯蓄が王道。現金確保が正解だ。", og: "存钱才是王道。现金比消费可靠。", src: "Xiaohongshu", time: "7h ago"},{jp: "上海のネオンは眩しいが、私の未来は照らさない。", og: "上海的霓虹灯很亮，但照不亮未来。", src: "Weibo", time: "9h ago"},{jp: "外資系企業が去っていく。オフィスが空洞化している。", og: "外企都在撤离。写字楼越来越空。", src: "Finance News", time: "12h ago"},{jp: "かつての勢いはどこへ？上海はどこか息苦しい。", og: "以前的活力哪儿去了？现在的上海窒息。", src: "Zhihu", time: "16h ago"},{jp: "子供の教育費は天井知らず。何を削ればいい？", og: "教育费是个无底洞。还能削减什么？", src: "Xiaohongshu", time: "20h ago"},{jp: "資産価値が下がるのを、ただ見守るしかない。", og: "眼睁睁看着资产贬值，这种无力感。", src: "Weibo", time: "1d ago"},{jp: "自由な消費ができるのは特権階級だけだ。", og: "能自由消费的只剩下特权阶层。", src: "Zhihu", time: "1d ago"}]},
+                'Society': { summary: "成功への強迫観念が、人間関係を効率性の道具に変えている。", feeds: [{jp: "SNSのいいねが生存証明だ。", og: "点赞是我的生存证明。", src: "Weibo", time: "2h ago"},{jp: "友達との会話も、利益の交換のように感じる。", og: "和朋友聊天感觉像利益交换。", src: "Zhihu", time: "4h ago"},{jp: "結婚は愛ではなく、資産合併になった。", og: "结婚是两家人的资产合并。", src: "WeChat", time: "6h ago"},{jp: "常に誰かと比較されている。終わりはない。", og: "永远在和别人比较。", src: "Xiaohongshu", time: "8h ago"},{jp: "弱さを見せることは敗北を意味する。", og: "展示软弱意味着失败。", src: "Weibo", time: "11h ago"},{jp: "親の期待が重すぎて、自分を失った。", og: "父母期待太重，失去了自我。", src: "Diary", time: "14h ago"},{jp: "雑踏の中で、自分だけが透明人間になった気分だ。", og: "感觉自己像个透明人。", src: "Weibo", time: "17h ago"},{jp: "信頼できるのはお金だけ。人はいつか裏切る。", og: "唯一能信任的是钱。人总会背叛。", src: "Zhihu", time: "20h ago"},{jp: "効率化された社会で、無駄な感情は捨てられる。", og: "无用的情感都被抛弃了。", src: "Medium", time: "23h ago"},{jp: "立ち止まることは罪だ。", og: "停下来就是一种罪过。", src: "Weibo", time: "1d ago"}]},
+                'Future': { summary: "「成長神話の終焉」。若者は低体温な安定を求め始めている。", feeds: [{jp: "公務員試験が一番の競争。現状を確保したい。", og: "考公是唯一的出路。", src: "Zhihu", time: "3h ago"},{jp: "AIが進化しても、生活が楽になる予感がない。", og: "AI进化，生活也没变轻松。", src: "Tech News", time: "5h ago"},{jp: "『チャイナドリーム』は教科書の中だけの話だ。", og: "“中国梦”只在教科书里。", src: "Weibo", time: "8h ago"},{jp: "未来を語るより、今日の晩御飯を安く済ませたい。", og: "与其谈论未来，不如想想省钱吃晚饭。", src: "Xiaohongshu", time: "11h ago"},{jp: "雇用形態の方が大事だ。", og: "与其关心环境，不如关心合同。", src: "Zhihu", time: "14h ago"},{jp: "大きな変化は望まない。維持されればいい。", og: "不再渴望大变化。维持下去就好。", src: "WeChat", time: "17h ago"},{jp: "海外へ行く友人が増えた。", og: "出国的同学越来越多。", src: "LinkedIn", time: "20h ago"},{jp: "夢を見るコストが高すぎ。現実を見るのが精一杯だ。", og: "做梦成本太高。看清现实拼尽全力。", src: "Weibo", time: "23h ago"},{jp: "未来は管理された一本道に見える。", og: "未来看起来像是一条管好的单行道。", src: "Tech Blog", time: "1d ago"},{jp: "新しい時代が来るというが、私たちのためのものか？", og: "新时代要来了，那是属于我们的吗？", src: "Zhihu", time: "1d ago"}]}
             },
             'New York': {
-                'Economy': {
-                    summary: "「生存コストの暴力」。家賃が全てを吸い取っていく巨大な装置と化したマンハッタン。",
-                    feeds: [
-                        {jp: "年収10万ドルでもここでは『貧困』だ。", og: "Even with a $100k salary, you're 'poor' in Manhattan.", src: "Reddit / NYC", time: "1h ago"},
-                        {jp: "外食は富裕層の特権。卵一パックの価格に驚く。", og: "Dining out is for the rich. A carton of eggs is a luxury now.", src: "X / NYC", time: "2h ago"},
-                        {jp: "マンハッタンはもはやコミュニティではなく巨大なATMだ。", og: "Manhattan isn't a community anymore; it's a giant ATM.", src: "NYC Blog", time: "5h ago"},
-                        {jp: "チップ文化のインフレ。支払いのたびに精神を削られる。", og: "Tipping inflation is soul-crushing with every payment.", src: "Reddit", time: "7h ago"},
-                        {jp: "治安が悪化しているが、家賃が高すぎてタクシーも呼べない。", og: "Subway safety is down, but rent is too high for Uber.", src: "Citizen App", time: "10h ago"},
-                        {jp: "アーティストは皆追い出された。魂のない街だ。", og: "Artists were all pushed out. This city has no soul left.", src: "NYT Comment", time: "14h ago"},
-                        {jp: "家賃のために3つの仕事を掛け持っている。", og: "I'm juggling three jobs just to pay the rent.", src: "Reddit", time: "18h ago"},
-                        {jp: "保険があっても病院に行けない。自己負担が高すぎる。", og: "I have insurance but can't see a doctor. Deductibles are insane.", src: "X / Health", time: "22h ago"},
-                        {jp: "NYは夢を叶える場所から、夢を搾取する場所になった。", og: "NYC went from making dreams to exploiting them.", src: "Medium", time: "1d ago"},
-                        {jp: "いつかこの街を出る。それが唯一の目標だ。", og: "Leaving NYC is my only goal now.", src: "Reddit / NYC", time: "1d ago"}
-                    ]
-                },
-                'Society': {
-                    summary: "「隔離された孤独」。所得による居住エリアの完全な隔離と分断。",
-                    feeds: [
-                        {jp: "一本隣の通りは別世界。分断が壁のように存在する。", og: "One block away is a different world. Division is a wall.", src: "Reddit", time: "3h ago"},
-                        {jp: "ホームレスが増え、誰も彼らと目を合わせない。", og: "Homelessness is up, but everyone avoids eye contact.", src: "X / NYC", time: "6h ago"},
-                        {jp: "高級マンションの横でゴミを漁る人。これが2026年のNY。", og: "Trash picking next to luxury condos. This is NY 2026.", src: "Insta / NYC", time: "9h ago"},
-                        {jp: "オンラインは派手だが、リアルな近所付き合いは皆無。", og: "Loud online, zero real neighborhood ties.", src: "Reddit", time: "12h ago"},
-                        {jp: "安全を買える者と、リスクの中で生きる者の差が開きすぎた。", og: "The gap between safety-buyers and risk-livers is too wide.", src: "Citizen App", time: "15h ago"},
-                        {jp: "人種や政治、あらゆるラインで人々が争っている。", og: "People fighting over race, politics, every possible line.", src: "X", time: "18h ago"},
-                        {jp: "孤独を感じるのは、自分だけが取り残されているからだ。", og: "I feel lonely because I feel left behind.", src: "Reddit / Life", time: "21h ago"},
-                        {jp: "街のエネルギーが、今はただの焦燥感に変わった。", og: "City's energy has turned into pure anxiety.", src: "Blog", time: "1d ago"},
-                        {jp: "誰もが主役になりたいが、観客は一人もいない。", og: "Everyone wants to be the star, but there's no audience.", src: "X / NYC", time: "1d ago"},
-                        {jp: "この街の優しさは、いつも高価な代償を伴う。", og: "Kindness in this city always comes with a high price tag.", src: "Medium", time: "1d ago"}
-                    ]
-                },
-                'Future': {
-                    summary: "「ネクスト・エスケープ」。NYの凋落を感じた人々が次を模索している。",
-                    feeds: [
-                        {jp: "次のシリコンバレーはどこだ？ここではない。", og: "Where's the next SV? At least not here.", src: "LinkedIn", time: "4h ago"},
-                        {jp: "気候変動で沈む前に、経済的な重圧で沈んでしまう。", og: "The city will sink under economic pressure before the sea rises.", src: "Reddit", time: "8h ago"},
-                        {jp: "子供を育てる場所ではない。未来を託せない。", og: "Not a place to raise kids. Can't trust the future here.", src: "X / Parenting", time: "12h ago"},
-                        {jp: "リモートが普及し、住む理由がブランド維持だけになった。", og: "Remote work left only the 'brand' to stay.", src: "Forbes Feed", time: "16h ago"},
-                        {jp: "AIがウォール街を変える。スキルはゴミになるかもしれない。", og: "AI changes Wall St. My skills might become trash.", src: "Tech Blog", time: "20h ago"},
-                        {jp: "10年後のこの街が、廃墟と化したテーマパークに見える。", og: "In 10 years, this city looks like a ruined theme park.", src: "Reddit", time: "1d ago"},
-                        {jp: "富裕層はすでにフロリダへ逃げた。残されたのは支払い担当だ。", og: "The rich fled to FL. We're just left to pay the bills.", src: "Bloomberg Comment", time: "1d ago"},
-                        {jp: "若者の勢いがない。いかに支出を抑えるかしか考えていない。", og: "No youth energy. Everyone's just cutting costs.", src: "X / GenZ", time: "1d ago"},
-                        {jp: "イノベーションは、もうNYの外で起きている。", og: "Innovation is happening outside of NYC now.", src: "Medium", time: "1d ago"},
-                        {jp: "この街の未来を信じているのは、観光客だけだ。", og: "Only tourists believe in the future of this city.", src: "Reddit / NYC", time: "1d ago"}
-                    ]
-                }
+                'Economy': { summary: "「生存コストの暴力」。家賃が全てを吸い取っていく装置。", feeds: [{jp: "年収10万ドルでもマンハッタンでは『貧困』だ。", og: "Even with $100k, you're 'poor' in Manhattan.", src: "Reddit", time: "1h ago"},{jp: "外食は富裕層の特権。卵一パックに驚愕する。", og: "Dining out is for the rich.", src: "X", time: "2h ago"},{jp: "マンハッタンはもはや巨大なATMだ。", og: "Manhattan is just a giant ATM.", src: "NYC Blog", time: "5h ago"},{jp: "チップ文化のインフレ。支払いのたびに精神を削られる。", og: "Tipping inflation is soul-crushing.", src: "Reddit", time: "7h ago"},{jp: "家賃が高すぎてタクシーも呼べない。", og: "Rent is too high for Uber.", src: "Citizen App", time: "10h ago"},{jp: "アーティストは皆追い出された。魂のない街だ。", og: "No soul left in this city.", src: "NYT Comment", time: "14h ago"},{jp: "家賃のために3つの仕事を掛け持っている。", og: "Juggling three jobs for rent.", src: "Reddit", time: "18h ago"},{jp: "保険があっても病院に行けない。", og: "Can't see a doctor with insurance.", src: "X", time: "22h ago"},{jp: "夢を搾取する場所になった。", og: "From making dreams to exploiting them.", src: "Medium", time: "1d ago"},{jp: "いつかこの街を出る。それが目標だ。", og: "Leaving NYC is my goal.", src: "Reddit", time: "1d ago"}]},
+                'Society': { summary: "所得による居住エリアの完全な隔離と分断。", feeds: [{jp: "一本隣の通りは別世界だ。", og: "One block away is a different world.", src: "Reddit", time: "3h ago"},{jp: "ホームレスが増え、誰も目を合わせない。", og: "Everyone avoids eye contact.", src: "X", time: "6h ago"},{jp: "高級マンションの横でゴミを漁る人。これがNYだ。", og: "Trash picking next to luxury condos.", src: "Insta", time: "9h ago"},{jp: "リアルな近所付き合いは皆無。", og: "Zero real neighborhood ties.", src: "Reddit", time: "12h ago"},{jp: "安全を買える者と、リスクの中で生きる者。", og: "Safety-buyers vs risk-livers.", src: "Citizen App", time: "15h ago"},{jp: "あらゆるラインで人々が争っている。", og: "Fighting over every possible line.", src: "X", time: "18h ago"},{jp: "自分だけが取り残されている気がする。", og: "I feel left behind.", src: "Reddit", time: "21h ago"},{jp: "街のエネルギーが焦燥感に変わった。", og: "Energy turned into anxiety.", src: "Blog", time: "1d ago"},{jp: "主役になりたいが、観客はいない。", og: "No audience for the stars.", src: "X", time: "1d ago"},{jp: "優しさは高価な代償を伴う。", og: "Kindness has a high price tag.", src: "Medium", time: "1d ago"}]},
+                'Future': { summary: "「ネクスト・エスケープ」。凋落を感じた人々が次を模索中。", feeds: [{jp: "次のシリコンバレーはどこだ？ここではない。", og: "Where's the next SV?", src: "LinkedIn", time: "4h ago"},{jp: "経済的な重圧で沈んでしまう。", og: "Sinking under debt.", src: "Reddit", time: "8h ago"},{jp: "子供を育てる場所ではない。", og: "Not a place for kids.", src: "X", time: "12h ago"},{jp: "住む理由がブランド維持だけになった。", og: "Only 'brand' left to stay.", src: "Forbes", time: "16h ago"},{jp: "AIがウォール街を変える。", og: "AI changes Wall St.", src: "Tech Blog", time: "20h ago"},{jp: "廃墟と化したテーマパークに見える。", og: "Ruined theme park in 10 years.", src: "Reddit", time: "1d ago"},{jp: "富裕層は逃げ、残されたのは支払い担当だ。", og: "The rich fled. We pay the bills.", src: "Bloomberg", time: "1d ago"},{jp: "いかに支出を抑えるかしか考えていない。", og: "Just cutting costs.", src: "X", time: "1d ago"},{jp: "イノベーションは、もうNYの外で起きている。", og: "Innovation is outside NYC now.", src: "Medium", time: "1d ago"},{jp: "未来を信じているのは、観光客だけだ。", og: "Only tourists believe in the future.", src: "Reddit", time: "1d ago"}]}
             },
             'London': {
-                'Economy': {
-                    summary: "「エネルギーの枷」。暖房か食事かという極端な二択を迫られる2026年の首都。",
-                    feeds: [
-                        {jp: "光熱費のためにパブを諦めた。社交が死んでいく。", og: "Gave up the pub for energy bills. Social life is dying.", src: "X / London", time: "2h ago"},
-                        {jp: "冬の室内温度を15度に設定。これが先進国か？", og: "15C indoors. Is this really a developed country?", src: "BBC Feed", time: "4h ago"},
-                        {jp: "暖房か食事か。私たちはこの二択を迫られている。", og: "Heating or eating. This is the choice we're facing.", src: "Reddit / UK", time: "6h ago"},
-                        {jp: "ロンドンは投資家のための金庫だ。教師は住めない。", og: "London is a vault for investors. Teachers can't live here.", src: "Guardian Feed", time: "9h ago"},
-                        {jp: "政治への失望。誰がリーダーでも変わらない。", og: "No leader gives a sense of improvement. Pure disappointment.", src: "X / UKPolitics", time: "13h ago"},
-                        {jp: "大英帝国の残影も、今の請求書の前では無意味だ。", og: "Empire shadows are meaningless against these bills.", src: "Daily Mail", time: "17h ago"},
-                        {jp: "賃貸の競争が異常。汚い部屋に給料の半分が消える。", og: "Rental competition is insane. Half my pay for a tiny room.", src: "Reddit", time: "20h ago"},
-                        {jp: "交通費の値上げで、都心へ行くことすら躊躇する。", og: "Commuter costs make me hesitate to go to the city center.", src: "Evening Standard", time: "23h ago"},
-                        {jp: "富裕層が買い占め、私たちは労働力として飼われている。", og: "The rich bought London; we're just kept as labor.", src: "Reddit / London", time: "1d ago"},
-                        {jp: "ブレグジットのツケを、なぜ私たちが払い続けるのか。", og: "Why are we still paying the price for Brexit?", src: "X", time: "1d ago"}
-                    ]
-                },
-                'Society': {
-                    summary: "「パブ文化の終焉」。社交の場が消え、孤独が深刻な社会問題となっている。",
-                    feeds: [
-                        {jp: "馴染みのパブが閉店した。居場所がまた一つ消えた。", og: "My local pub closed. Another space of mine gone.", src: "BBC News", time: "3h ago"},
-                        {jp: "通りで人と目が合っても、皆どこか疲れた顔をしている。", og: "Everyone looks tired, even on the street.", src: "X / London", time: "6h ago"},
-                        {jp: "孤独を紛らわすためのアルコールが増えた。不健康な循環だ。", og: "Drinking more to escape loneliness. An unhealthy cycle.", src: "Reddit", time: "9h ago"},
-                        {jp: "センターの予算がカットされ、子供の遊び場がない。", og: "Community centers' budgets cut; no place for kids.", src: "Local Board", time: "12h ago"},
-                        {jp: "階級社会の壁が、今は経済的な壁としてより強固になった。", og: "Class walls are now even firmer as economic walls.", src: "Guardian", time: "15h ago"},
-                        {jp: "オンライン議論は過激だが、隣人と話す機会はない。", og: "Loud online debates, zero neighborly talk.", src: "Reddit", time: "18h ago"},
-                        {jp: "誰もが何かに怒っている。その矛先はいつも弱者に向かう。", og: "Everyone is angry at something. It targets the weak.", src: "X", time: "21h ago"},
-                        {jp: "孤独死の現場を清掃する仕事が増えているらしい。", og: "Heard jobs for cleaning lonely deaths are up. Sad reality.", src: "News Blog", time: "1d ago"},
-                        {jp: "移民への風当たりが強くなり、寛容さが失われていく。", og: "Hate against immigrants is up; tolerance is fading.", src: "X / UK", time: "1d ago"},
-                        {jp: "ロンドンの雨は、昔より冷たく感じる。", og: "London rain feels colder than it used to.", src: "Reddit / London", time: "1d ago"}
-                    ]
-                },
-                'Future': {
-                    summary: "「ポスト・ブレグジットの閉塞」。金融都市の輝きは失われ、再生の道筋も見えない。",
-                    feeds: [
-                        {jp: "未来のロンドンは、金持ちのための博物館になるだろう。", og: "Future London will be a museum for the wealthy.", src: "Guardian", time: "5h ago"},
-                        {jp: "EUに戻ることもできず、ただ漂流している感覚だ。", og: "Can't go back to EU, just feels like drifting.", src: "Reddit", time: "10h ago"},
-                        {jp: "若者は皆、ベルリンやバルセロナを目指している。", og: "Youth are all heading for Berlin or Barcelona.", src: "LinkedIn", time: "15h ago"},
-                        {jp: "テックハブになると言うが、生活費が高すぎて誰も来ない。", og: "They say 'Tech Hub', but no one comes due to costs.", src: "Tech News", time: "20h ago"},
-                        {jp: "子供たちに、この国で希望を持てと言うのは残酷だ。", og: "It's cruel to tell kids to have hope in this country.", src: "X / Parent", time: "1d ago"},
-                        {jp: "10年後のNHSが残っているとは思えない。", og: "I don't think the NHS will exist in 10 years.", src: "BBC Feed", time: "1d ago"},
-                        {jp: "かつての栄光を語る老人に、未来を語る力はない。", og: "Elderly talking past glory can't talk about the future.", src: "Reddit", time: "1d ago"},
-                        {jp: "氾濫する前に、経済が氾濫してしまった。", og: "Economy flooded before the Thames did.", src: "Finance News", time: "1d ago"},
-                        {jp: "イノベーションは、この不条理な官僚主義に殺される。", og: "Innovation will be killed by this absurd bureaucracy.", src: "Medium", time: "1d ago"},
-                        {jp: "ロンドンの未来は、もはやロンドンっ子の手にはない。", og: "The future of London is no longer in Londoners' hands.", src: "X / London", time: "1d ago"}
-                    ]
-                }
+                'Economy': { summary: "「エネルギーの枷」。暖房か食事かという極端な二択。", feeds: [{jp: "パブを諦めた。社交が死んでいく。", og: "Gave up the pub for energy bills.", src: "X", time: "2h ago"},{jp: "冬の室内温度を15度に設定。先進国か？", og: "15C indoors.", src: "BBC", time: "4h ago"},{jp: "暖房か食事か。私たちは二択を迫られている。", og: "Heating or eating.", src: "Reddit", time: "6h ago"},{jp: "ロンドンは投資家のための金庫だ。教師は住めない。", og: "London is a vault for investors.", src: "Guardian", time: "9h ago"},{jp: "政治への失望。誰がリーダーでも変わらない。", og: "No leader gives improvement.", src: "X", time: "13h ago"},{jp: "請求書の前では大英帝国の栄光も無意味だ。", og: "Empire is meaningless against bills.", src: "Daily Mail", time: "17h ago"},{jp: "汚い一部屋に給料の半分が消える。", og: "Half my pay for a tiny room.", src: "Reddit", time: "20h ago"},{jp: "都心へ行くことすら躊躇する。", og: "Hesitate to go to the center.", src: "Evening Standard", time: "23h ago"},{jp: "労働力として飼われている。", og: "Kept as labor.", src: "Reddit", time: "1d ago"},{jp: "ブレグジットのツケを払い続けている。", og: "Still paying for Brexit.", src: "X", time: "1d ago"}]},
+                'Society': { summary: "パブ文化の終焉。孤独が深刻な社会問題。", feeds: [{jp: "馴染みのパブが閉店した。居場所が消えた。", og: "My local pub closed.", src: "BBC", time: "3h ago"},{jp: "通りで人と目が合っても、疲れた顔をしている。", og: "Everyone looks tired.", src: "X", time: "6h ago"},{jp: "孤独を紛らわすアルコールが増えた。", og: "Drinking more to escape loneliness.", src: "Reddit", time: "9h ago"},{jp: "予算がカットされ、子供の遊び場がない。", og: "No place for kids.", src: "Local Board", time: "12h ago"},{jp: "階級の壁が経済的壁としてより強固になった。", og: "Class walls firmer now.", src: "Guardian", time: "15h ago"},{jp: "オンライン議論は過激だが、隣人と話さない。", og: "Zero neighborly talk.", src: "Reddit", time: "18h ago"},{jp: "誰もが何かに怒っている。矛先はいつも弱者だ。", og: "Everyone is angry.", src: "X", time: "21h ago"},{jp: "孤独死の清掃する仕事が増えているらしい。", og: "Cleaning lonely deaths up.", src: "News Blog", time: "1d ago"},{jp: "移民への風当たりが強くなり、寛容さが失われた。", og: "Tolerance is fading.", src: "X", time: "1d ago"},{jp: "ロンドンの雨は、昔より冷たく感じる。", og: "London rain feels colder.", src: "Reddit", time: "1d ago"}]},
+                'Future': { summary: "金融都市の輝きは失われ、再生の道筋も見えない。", feeds: [{jp: "未来のロンドンは、金持ちのための博物館になる。", og: "London as a museum for wealthy.", src: "Guardian", time: "5h ago"},{jp: "EUに戻ることもできず、ただ漂流している。", og: "Just drifting.", src: "Reddit", time: "10h ago"},{jp: "若者は皆、ベルリンやバルセロナを目指している。", og: "Youth heading to Berlin.", src: "LinkedIn", time: "15h ago"},{jp: "生活費が高すぎてテックハブになれない。", og: "Costs kill tech hub dreams.", src: "Tech News", time: "20h ago"},{jp: "この国で希望を持てと言うのは残酷だ。", og: "Cruel to tell kids to have hope.", src: "X", time: "1d ago"},{jp: "10年後のNHSが残っているとは思えない。", og: "NHS won't exist in 10 years.", src: "BBC", time: "1d ago"},{jp: "栄光を語る老人に、未来を語る力はない。", og: "Elderly can't talk future.", src: "Reddit", time: "1d ago"},{jp: "氾濫する前に、経済が氾濫してしまった。", og: "Economy flooded first.", src: "Finance News", time: "1d ago"},{jp: "不条理な官僚主義に殺される。", og: "Killed by absurd bureaucracy.", src: "Medium", time: "1d ago"},{jp: "未来はもはやロンドンっ子の手にはない。", og: "Future not in citizens' hands.", src: "X", time: "1d ago"}]}
             },
             'Milan': {
-                'Economy': {
-                    summary: "「見栄の限界」。優雅な外見を維持するコストが内面を空虚にする。",
-                    feeds: [
-                        {jp: "ミラノの家賃はトップクラスなのに、給料は20年前と同じ。", og: "Affitti alle stelle, ma gli stipendi sono fermi a 20 anni fa.", src: "Corriere", time: "3h ago"},
-                        {jp: "優雅な外見を維持するコストが、内面を空虚にさせていく。", og: "Il costo dell'apparenza ci sta svuotando dentro.", src: "X / Milano", time: "5h ago"},
-                        {jp: "ミラノは富裕層の遊び場。家を持つのは『神話』だ。", og: "Milano è un parco giochi per ricchi. Comprare casa è un mito.", src: "Reddit / Italy", time: "8h ago"},
-                        {jp: "ファッション・ウィークが街の貧困を隠している。", og: "La settimana della moda nasconde la povertà della città.", src: "Repubblica", time: "12h ago"},
-                        {jp: "若者は皆実家から出られない。独立という概念が消失した。", og: "I giovani non possono uscire di casa. L'indipendenza è sparita.", src: "X", time: "16h ago"},
-                        {jp: "ランチ一食の価格が、半日分の労働に等しい。", og: "Il prezzo di un pranzo equivale a mezza giornata di lavoro.", src: "Reddit", time: "20h ago"},
-                        {jp: "観光客への笑顔の裏で、私たちは支払いに追われている。", og: "Dietro i sorrisi ai turisti, siamo inseguiti dai debiti.", src: "Milan Today", time: "1d ago"},
-                        {jp: "メイド・イン・イタリーの誇りも、模倣品に負けている。", og: "L'orgoglio del Made in Italy sta perdendo contro le copie.", src: "Finance Feed", time: "1d ago"},
-                        {jp: "伝統を守る余裕がない。生き残るために働いている。", og: "Non possiamo permetterci la tradizione. Lavoriamo per sopravvivere.", src: "X / Milan", time: "1d ago"},
-                        {jp: "美しさを切り売りして延命している都市だ。", og: "Una città che vende la sua bellezza per restare in vita.", src: "Blog", time: "1d ago"}
-                    ]
-                },
-                'Society': {
-                    summary: "「家族という最後の砦」。公的支援の機能不全と共同体の重圧。",
-                    feeds: [
-                        {jp: "両親がいなければ、私は今頃路上生活をしていた。", og: "Senza i miei genitori, sarei per strada a quest'ora.", src: "Reddit", time: "4h ago"},
-                        {jp: "近所付き合いは、いつもゴシップと嫉妬に満ちている。", og: "I rapporti di vicinato sono pieni di pettegolezzi.", src: "X / Milano", time: "8h ago"},
-                        {jp: "教会へ行く人が減り、街の道徳的な中心がなくなった。", og: "Meno persone vanno in chiesa; il centro morale è sparito.", src: "Society Blog", time: "12h ago"},
-                        {jp: "孤独を感じるのは、家族という輪に入れない人々だ。", og: "La solitudine è per chi non entra nel cerchio della famiglia.", src: "Reddit", time: "16h ago"},
-                        {jp: "高齢者の世話を家族が抱え込み、共倒れになりかけている。", og: "L'assistenza agli anziani sta facendo crollare le famiglie.", src: "Local News", time: "20h ago"},
-                        {jp: "若者の声が届かない。この街は老いた権力者のものだ。", og: "Le voci dei giovani non arrivano. La città è dei vecchi.", src: "X", time: "1d ago"},
-                        {jp: "広場（Piazza）での会話も、もはや政治への不満だけだ。", og: "Le chiacchiere in piazza sono solo lamentele.", src: "Milan Today", time: "1d ago"},
-                        {jp: "誰かを助ける余裕がない。自分の家族を守るだけで精一杯。", og: "Nessuno aiuta gli altri. Pensiamo solo alla nostra famiglia.", src: "Diary", time: "1d ago"},
-                        {jp: "友情よりもまずは血縁。その閉鎖性が息苦しい。", og: "Prima il sangue, poi l'amicizia. Questa chiusura soffoca.", src: "Reddit / Italy", time: "1d ago"},
-                        {jp: "ミラノの夜は、寂しさだけが贅沢に漂っている。", og: "Nelle notti milanesi fluttua solo una lussuosa solitudine.", src: "Medium", time: "1d ago"}
-                    ]
-                },
-                'Future': {
-                    summary: "「歴史への逃避」。未来を提示できない社会の、過去の栄光への閉じこもり。",
-                    feeds: [
-                        {jp: "新しいことは何も起きない。歴史の貯金で生きている。", og: "Non succede nulla di nuovo. Viviamo con i risparmi della storia.", src: "Corriere", time: "6h ago"},
-                        {jp: "未来はドイツや北欧にあるものだと思っている。", og: "Pensiamo che il futuro sia in Germania o nel Nord Europa.", src: "Reddit", time: "12h ago"},
-                        {jp: "ミラノのデザインも、今はただの過去の焼き増しだ。", og: "Il design milanese è solo un rifacimento del passato.", src: "Design Blog", time: "18h ago"},
-                        {jp: "子供たちには海外へ行けと言っている。ここには未来がない。", og: "Dico ai miei figli di andarsene. Qui non c'è futuro.", src: "X / Milan", time: "1d ago"},
-                        {jp: "AIが導入されても、この官僚主義は変わらないだろう。", og: "Anche con l'IA, questa burocrazia non cambierà.", src: "Tech Feed", time: "1d ago"},
-                        {jp: "10年後の街が、ブランドの看板だけの抜け殻に見える。", og: "Tra 10 anni la città sembrerà un guscio di insegne.", src: "Medium", time: "1d ago"},
-                        {jp: "イノベーションより、今夕のアペリティーボが大事だ。", og: "L'aperitivo di stasera conta più dell'innovazione.", src: "X / Life", time: "1d ago"},
-                        {jp: "私たちの世代で、イタリアというプロジェクトは終わる。", og: "Sento che il progetto Italia finirà con la nostra gen.", src: "Repubblica", time: "1d ago"},
-                        {jp: "未来を語る人は、ここでは空想家扱いされる。", og: "Chi parla di futuro qui viene trattato come un sognatore.", src: "Reddit / Milan", time: "1d ago"},
-                        {jp: "希望とは、明日も昨日と同じ生活ができることだ。", og: "La speranza è poter vivere domani come ieri.", src: "Milan Today", time: "1d ago"}
-                    ]
-                }
+                'Economy': { summary: "「見栄の限界」。優雅な外見を維持するコストが内面を空虚にする。", feeds: [{jp: "給料は20年前と同じ。", og: "Stipendi fermi a 20 anni fa.", src: "Corriere", time: "3h ago"},{jp: "外見の維持が内面を空虚にする。", og: "Apparenza ci sta svuotando.", src: "X", time: "5h ago"},{jp: "ミラノは富裕層の遊び場だ。", og: "Milano è un parco giochi per ricchi.", src: "Reddit", time: "8h ago"},{jp: "ファッション・ウィークが貧困を隠している。", og: "La moda nasconde la povertà.", src: "Repubblica", time: "12h ago"},{jp: "若者は皆実家から出られない。", og: "I giovani non possono uscire di casa.", src: "X", time: "16h ago"},{jp: "ランチ一食が半日分の労働に等しい。", og: "Pranzo equivale a mezza giornata lavoro.", src: "Reddit", time: "20h ago"},{jp: "観光客への笑顔の裏で、支払いに追われている。", og: "Inseguiti dai debiti.", src: "Milan Today", time: "1d ago"},{jp: "メイド・イン・イタリーの誇りも模倣品に負けた。", og: "Orgoglio Made in Italy ha perso.", src: "Finance Feed", time: "1d ago"},{jp: "生き残るために働いている。", og: "Lavoriamo per sopravvivere.", src: "X", time: "1d ago"},{jp: "美しさを切り売りして延命している。", og: "Vende la sua bellezza per restare in vita.", src: "Blog", time: "1d ago"}]},
+                'Society': { summary: "家族という最後の砦。公的支援の機能不全。", feeds: [{jp: "両親がいなければ路上生活だった。", og: "Senza genitori, sarei per strada.", src: "Reddit", time: "4h ago"},{jp: "近所付き合いは、いつもゴシップと嫉妬だ。", og: "Rapporti pieni di pettegolezzi.", src: "X", time: "8h ago"},{jp: "教会の中心がなくなった。", og: "Il centro morale è sparito.", src: "Society Blog", time: "12h ago"},{jp: "家族に入れない人々が孤独を感じる。", og: "Solitudine per chi non è in famiglia.", src: "Reddit", time: "16h ago"},{jp: "共倒れになりかけている。", og: "Stanno crollando le famiglie.", src: "Local News", time: "20h ago"},{jp: "この街は老いた権力者のものだ。", og: "La città è dei vecchi potenti.", src: "X", time: "1d ago"},{jp: "広場での会話も不満だけになった。", og: "Piazza sono solo lamentele.", src: "Milan Today", time: "1d ago"},{jp: "自分の家族を守るだけで精一杯だ。", og: "Pensiamo solo alla nostra famiglia.", src: "Diary", time: "1d ago"},{jp: "血縁。その閉鎖性が息苦しい。", og: "Prima il sangue. Chiusura soffoca.", src: "Reddit", time: "1d ago"},{jp: "寂しさだけが贅沢に漂っている。", og: "Lussuosa solitudine.", src: "Medium", time: "1d ago"}]},
+                'Future': { summary: "歴史への逃避。過去の栄光に閉じこもる社会。", feeds: [{jp: "歴史の貯金で生きている。", og: "Viviamo con i risparmi della storia.", src: "Corriere", time: "6h ago"},{jp: "未来はドイツや北欧にあると思っている。", og: "Il futuro è in Germania.", src: "Reddit", time: "12h ago"},{jp: "過去の焼き増しだ。", og: "Design è un rifacimento del passato.", src: "Design Blog", time: "18h ago"},{jp: "ここには未来がない。海外へ行け。", og: "Dico ai figli di andarsene.", src: "X", time: "1d ago"},{jp: "官僚主義は変わらないだろう。", og: "Burocrazia non cambierà.", src: "Tech Feed", time: "1d ago"},{jp: "抜け殻に見える。", og: "Città sembrerà un guscio.", src: "Medium", time: "1d ago"},{jp: "アペリティーボが大事だ。", og: "Aperitivo conta più dell'innovazione.", src: "X", time: "1d ago"},{jp: "イタリアというプロジェクトは終わる。", og: "Progetto Italia finirà.", src: "Repubblica", time: "1d ago"},{jp: "未来を語る人は空想家扱いだ。", og: "Chi parla di futuro è un sognatore.", src: "Reddit", time: "1d ago"},{jp: "明日も昨日と同じ生活ができることが希望だ。", og: "Speranza è vivere domani come ieri.", src: "Milan Today", time: "1d ago"}]}
             },
             'Lagos': {
-                'Economy': {
-                    summary: "「通貨の崩壊」。ナイラの乱高下により、物々交換に近い経済が台頭。",
-                    feeds: [
-                        {jp: "昨日買えたパンが今日は倍。ナイラを持つのはリスクだ。", og: "Bread wey I buy yesterday don double today. Naira na risk.", src: "X / Nigeria", time: "1h ago"},
-                        {jp: "中間層が消滅した。富裕層か困窮層かだけだ。", og: "Middle class don finish. Na only rich and poor remain.", src: "Lagos Post", time: "3h ago"},
-                        {jp: "暗号通貨こそが命綱。デジタル資産を信じている。", og: "Crypto na our life wire. We trust digital pass bank.", src: "Reddit / Crypto", time: "6h ago"},
-                        {jp: "通貨が紙屑になる速度に、夢は追いつけない。", og: "Naira dey fall faster than our dreams.", src: "Nairaland", time: "9h ago"},
-                        {jp: "燃料代か食料代か。どこを削ればいいかわからない。", og: "Fuel money or food money? I no even know wetin to cut.", src: "X / Lagos", time: "12h ago"},
-                        {jp: "ラゴスの活気は、生存のための必死な足掻きだ。", og: "Lagos energy na just hustle to stay alive.", src: "YouTube", time: "16h ago"},
-                        {jp: "政府は助けてくれない。私たちは自力で生きている。", og: "Govt no go help us. We dey survive on our own strength.", src: "Nairaland", time: "20h ago"},
-                        {jp: "ビジネスの成否はドルの調達で決まる。", og: "Everything for business na dollar. USD na king.", src: "Finance News", time: "1d ago"},
-                        {jp: "毎日の物価上昇が、精神を削り取っていく。", og: "Daily price increase dey scatter our head.", src: "X / Nigeria", time: "1d ago"},
-                        {jp: "この街で生き残ることは、毎日が戦場だ。", og: "To survive for this city na war every day.", src: "Blog / Lagos", time: "1d ago"}
-                    ]
-                },
-                'Society': {
-                    summary: "「カオスの中の連帯」。私設コミュニティが崩壊したインフラを支えている。",
-                    feeds: [
-                        {jp: "警察はあてにならない。自分の身は自分で守れ。", og: "Police no go help you. Guard yourself for Lagos.", src: "Lagos Post", time: "5h ago"},
-                        {jp: "近所同士の助け合いだけが、生き残れる理由だ。", og: "Na only neighbor help neighbor make we still dey breathe.", src: "Nairaland", time: "10h ago"},
-                        {jp: "渋滞の中の物売り、彼らもまた街の血流だ。", og: "Vendors for traffic na the real blood of this city.", src: "YouTube", time: "14h ago"},
-                        {jp: "家族の絆が強すぎて、それが時に足枷になる。", og: "Family bond strong well well, but sometimes e be like chain.", src: "X", time: "18h ago"},
-                        {jp: "孤独を感じる暇などない。常に誰かと競争している。", og: "No time to feel lonely. Na struggle we dey every second.", src: "Reddit", time: "1d ago"},
-                        {jp: "若者の音楽（アフロビーツ）が、唯一の希望だ。", og: "Afrobeats na the only hope wey young people get.", src: "Insta", time: "1d ago"},
-                        {jp: "貧困の中でも、私たちは笑い方を忘れていない。", og: "Inside this poverty, we still know how to laugh.", src: "Nairaland", time: "1d ago"},
-                        {jp: "誰かが成功すれば、村全体が恩恵を期待する。", og: "If one person blow, the whole village go expect share.", src: "X", time: "1d ago"},
-                        {jp: "教育が脱出の鍵だが、機会は平等ではない。", og: "School na the key, but the door no open for everybody.", src: "News Blog", time: "1d ago"},
-                        {jp: "ラゴスは、世界で最も過酷で、最もパワフルな場所だ。", og: "Lagos na the hardest and most powerful place for world.", src: "Medium", time: "1d ago"}
-                    ]
-                },
-                'Future': {
-                    summary: "「デジタル・フロンティア」。デジタル空間に新たな国家を構築する熱量。",
-                    feeds: [
-                        {jp: "未来はシリコンバレーではなく、ラゴスの裏通りから生まれる。", og: "Future go come from Lagos streets, no be Silicon Valley.", src: "Tech News", time: "6h ago"},
-                        {jp: "テクノロジーが、腐敗したシステムを回避する手段になる。", og: "Tech na how we go take bypass all these corrupt systems.", src: "X / Future", time: "11h ago"},
-                        {jp: "私たちは、物理的な国境を越えて世界と繋がっている。", og: "We connect with the world pass all these borders.", src: "LinkedIn", time: "16h ago"},
-                        {jp: "10年後のナイジェリアは、アフリカのデジタル心臓部になる。", og: "Nigeria go be Africa digital heartbeat in 10 years.", src: "X", time: "22h ago"},
-                        {jp: "今の苦しみは、新しい時代への産みの苦しみだ。", og: "All this suffer na just birth pain for new age.", src: "Nairaland", time: "1d ago"},
-                        {jp: "教育された若者が、この国を根底から変えていくだろう。", og: "Young people wey go school go change this country scatter.", src: "Blog", time: "1d ago"},
-                        {jp: "インフラが整えば、私たちは誰にも負けない。", og: "If light and road set, nobody for world fit follow us.", src: "X / Lagos", time: "1d ago"},
-                        {jp: "未来への期待は、自分たちの手で作り出すものだ。", og: "Na we go create the hope wey we want see.", src: "Medium", time: "1d ago"},
-                        {jp: "世界は私たちを憐れむが、私たちは追い抜く準備をしている。", og: "Dem dey pity us, but we dey set to pass dem all.", src: "Reddit", time: "1d ago"},
-                        {jp: "ラゴスの朝日は、いつも新しい挑戦の始まりだ。", og: "Lagos sunrise na signal say another hustle don start.", src: "X / Nigeria", time: "1d ago"}
-                    ]
-                }
+                'Economy': { summary: "「通貨の崩壊」。ナイラの乱高下により、物々交換に近い経済。", feeds: [{jp: "ナイラを持つのはリスクだ。", og: "Naira na risk.", src: "X", time: "1h ago"},{jp: "中間層が消滅した。", og: "Middle class don finish.", src: "Lagos Post", time: "3h ago"},{jp: "デジタル資産を信じている。", og: "We trust digital pass bank.", src: "Reddit", time: "6h ago"},{jp: "夢は追いつけない。", og: "Dreams can't keep up.", src: "Nairaland", time: "9h ago"},{jp: "燃料代か食料代か。", og: "Fuel or food money?", src: "X", time: "12h ago"},{jp: "生存のための必死な足掻きだ。", og: "Lagos energy na hustle.", src: "YouTube", time: "16h ago"},{jp: "自力で生きている。", og: "Survive on our own strength.", src: "Nairaland", time: "20h ago"},{jp: "USDこそが王だ。", og: "USD na king.", src: "Finance News", time: "1d ago"},{jp: "物価上昇が精神を削る。", og: "Price increase dey scatter head.", src: "X", time: "1d ago"},{jp: "毎日が戦場だ。", og: "Survive for city na war.", src: "Blog", time: "1d ago"}]},
+                'Society': { summary: "「カオスの中の連帯」。私設コミュニティがインフラを支える。", feeds: [{jp: "警察はあてにならない。", og: "Police no go help you.", src: "Lagos Post", time: "5h ago"},{jp: "近所の助け合いが生き残れる理由だ。", og: "Neighbor help neighbor.", src: "Nairaland", time: "10h ago"},{jp: "物売りも街の血流だ。", og: "Vendors na blood of city.", src: "YouTube", time: "14h ago"},{jp: "家族の絆が時に足枷になる。", og: "Family bond be like chain.", src: "X", time: "18h ago"},{jp: "常に誰かと競争している。", og: "Na struggle we dey.", src: "Reddit", time: "1d ago"},{jp: "アフロビーツが唯一の希望だ。", og: "Afrobeats na hope.", src: "Insta", time: "1d ago"},{jp: "笑い方を忘れていない。", og: "We still know how to laugh.", src: "Nairaland", time: "1d ago"},{jp: "村全体が恩恵を期待する。", og: "Village expect share.", src: "X", time: "1d ago"},{jp: "教育が鍵だが、平等ではない。", og: "School na key but no open for all.", src: "News Blog", time: "1d ago"},{jp: "最もパワフルな場所だ。", og: "Most powerful place for world.", src: "Medium", time: "1d ago"}]},
+                'Future': { summary: "デジタル空間に新たな国家を構築する熱量。", feeds: [{jp: "未来は裏通りから生まれる。", og: "Future come from Lagos streets.", src: "Tech News", time: "6h ago"},{jp: "腐敗を回避する手段だ。", og: "Tech bypass corrupt systems.", src: "X", time: "11h ago"},{jp: "国境を越えて世界と繋がっている。", og: "Connect pass all borders.", src: "LinkedIn", time: "16h ago"},{jp: "アフリカのデジタル心臓部になる。", og: "Africa digital heartbeat.", src: "X", time: "22h ago"},{jp: "新しい時代への産みの苦しみだ。", og: "Suffer na birth pain for new age.", src: "Nairaland", time: "1d ago"},{jp: "教育された若者が国を変えるだろう。", og: "Young school people change country.", src: "Blog", time: "1d ago"},{jp: "インフラが整えば負けない。", og: "Nobody fit follow us.", src: "X", time: "1d ago"},{jp: "自分たちの手で作り出す。", og: "Create hope we want see.", src: "Medium", time: "1d ago"},{jp: "追い抜く準備をしている。", og: "Setting to pass dem all.", src: "Reddit", time: "1d ago"},{jp: "新しい挑戦の始まりだ。", og: "Another hustle don start.", src: "X", time: "1d ago"}]}
             }
         };
 
