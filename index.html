@@ -2,15 +2,14 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <title>Global Automotive Sentiment Oracle | Ver.3.6.1</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <title>Matrix 2026 | Ver.1.7 Direct Report</title>
     <style>
         :root {
             --apple-text: #1D1D1F;
-            --toyota-red: #EB0A1E;
-            --tesla-black: #171717;
-            --byd-blue: #005496;
-            --accent-color: var(--toyota-red);
+            --matrix-red: #E02020;
+            --matrix-blue: #007AFF;
+            --matrix-purple: #AF52DE;
+            --accent-color: var(--matrix-red);
             --tile-bg: #F5F5F7;
             --white: #ffffff;
             --sub-text: #86868b;
@@ -27,11 +26,7 @@
             overflow: hidden;
         }
 
-        /* --- UI Elements --- */
-        .system-header { position: absolute; top: 40px; left: 50px; z-index: 1000; pointer-events: none; }
-        .sys-title { font-size: 14px; font-weight: 900; letter-spacing: 0.3em; text-transform: uppercase; color: #1d1d1f; margin-bottom: 4px; }
-        .sys-subtitle { font-size: 9px; font-weight: 500; letter-spacing: 0.15em; color: var(--sub-text); text-transform: uppercase; }
-
+        /* --- Category Switcher --- */
         .brand-switcher {
             position: absolute; top: 40px; right: 50px; z-index: 1000;
             display: flex; gap: 10px; background: rgba(245, 245, 247, 0.8);
@@ -39,276 +34,247 @@
         }
         .brand-btn {
             padding: 8px 16px; border-radius: 15px; font-size: 11px; font-weight: 700;
-            cursor: pointer; border: none; transition: 0.3s;
+            cursor: pointer; border: none; transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
             color: var(--sub-text); background: transparent; letter-spacing: 0.1em;
         }
         .brand-btn.active { color: white; background: var(--accent-color); box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
 
-        /* --- Map Page --- */
-        #map-page { position: absolute; width: 100vw; height: 100vh; display: block; z-index: 10; transition: 0.8s; }
+        /* --- Global Map Layer --- */
+        #map-page {
+            position: absolute; width: 100vw; height: 100vh;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.6s;
+            z-index: 10;
+        }
         #bg-tiles { position: absolute; width: 100%; height: 100%; display: grid; grid-template-columns: repeat(40, 1fr); gap: 2px; padding: 2px; opacity: 0.15; pointer-events: none; }
-        .tile { background-color: var(--tile-bg); aspect-ratio: 1; border: 1px solid #fff; }
+        .tile { background-color: var(--tile-bg); aspect-ratio: 1; }
 
-        .city-node { position: absolute; display: flex; align-items: center; justify-content: center; width: 100px; height: 100px; margin: -50px; cursor: pointer; z-index: 500; }
-        .node-inner { width: 14px; height: 14px; border-radius: 50%; transition: 0.8s; }
+        .status-area { position: absolute; top: 40px; left: 50px; z-index: 100; pointer-events: none; }
+        .logo-main { font-size: 11px; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; margin-bottom: 6px; color: var(--accent-color); transition: color 0.5s; }
+        .data-window { font-size: 9px; font-weight: 500; color: var(--sub-text); letter-spacing: 0.1em; text-transform: uppercase; display: flex; align-items: center; }
+        .data-window::before { content: ""; display: inline-block; width: 4px; height: 4px; background-color: var(--accent-color); border-radius: 50%; margin-right: 6px; animation: blink 2s infinite; }
+        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+
+        /* 都市ノード */
+        .city-node { position: absolute; display: flex; align-items: center; justify-content: center; width: 120px; height: 120px; margin: -60px; cursor: pointer; z-index: 500; }
+        .node-inner { width: 14px; height: 14px; border-radius: 50%; transition: all 0.8s ease; }
         .node-outer { position: absolute; width: 40px; height: 40px; border-radius: 50%; border: 1.5px solid var(--negative-orange); opacity: 0.6; animation: pulse 3s infinite; }
-        @keyframes pulse { 0% { transform: scale(0.8); opacity: 0.8; } 100% { transform: scale(2.5); opacity: 0; } }
-        .city-label { position: absolute; bottom: 5px; font-size: 11px; font-weight: 800; text-transform: uppercase; }
+        @keyframes pulse { 0% { transform: scale(0.8); opacity: 0.8; } 100% { transform: scale(2.8); opacity: 0; } }
+        .city-label { position: absolute; bottom: 5px; font-size: 11px; font-weight: 800; letter-spacing: 0.12em; text-transform: uppercase; color: var(--sub-text); }
 
         .city-node.pos .node-inner { background-color: var(--positive-green); box-shadow: 0 0 15px var(--positive-green); }
-        .city-node.pos .city-label { color: var(--positive-green); }
         .city-node.neu .node-inner { background-color: var(--neutral-gray); box-shadow: 0 0 10px var(--neutral-gray); }
-        .city-node.neu .city-label { color: var(--neutral-gray); }
         .city-node.neg .node-inner { background-color: var(--negative-orange); box-shadow: 0 0 15px var(--negative-orange); }
-        .city-node.neg .city-label { color: var(--negative-orange); }
 
-        #node-ny { top: 38%; left: 25%; } #node-london { top: 30%; left: 47%; }
-        #node-milan { top: 35%; left: 51%; } #node-lagos { top: 68%; left: 45%; }
-        #node-shanghai { top: 48%; left: 75%; } #node-tokyo { top: 45%; left: 81%; }
+        #node-ny { top: 38%; left: 25%; } #node-london { top: 30%; left: 47%; } #node-milan { top: 35%; left: 51%; }
+        #node-lagos { top: 68%; left: 45%; } #node-shanghai { top: 48%; left: 75%; } #node-tokyo { top: 45%; left: 81%; }
 
-        .legend { position: absolute; bottom: 40px; left: 50px; z-index: 1000; display: flex; gap: 30px; border-top: 1px solid #eee; padding-top: 20px; }
-        .legend-item { display: flex; flex-direction: column; gap: 5px; }
-        .legend-tag { font-size: 9px; font-weight: 800; text-transform: uppercase; display: flex; align-items: center; gap: 6px; }
-        .legend-dot { width: 6px; height: 6px; border-radius: 50%; }
-        .legend-text { font-size: 10px; color: var(--sub-text); max-width: 140px; line-height: 1.4; }
+        /* 凡例 */
+        .legend-area { position: absolute; bottom: 40px; left: 50px; z-index: 100; display: flex; gap: 40px; border-top: 1px solid #eee; padding-top: 20px; }
+        .legend-item { display: flex; flex-direction: column; gap: 8px; }
+        .legend-header { display: flex; align-items: center; gap: 8px; font-size: 10px; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; }
+        .legend-dot { width: 8px; height: 8px; border-radius: 50%; }
+        .legend-desc { font-size: 11px; color: var(--sub-text); line-height: 1.4; max-width: 180px; font-weight: 500; }
+        .l-pos { color: var(--positive-green); } .dot-pos { background-color: var(--positive-green); }
+        .l-neu { color: var(--neutral-gray); } .dot-neu { background-color: var(--neutral-gray); }
+        .l-neg { color: var(--negative-orange); } .dot-neg { background-color: var(--negative-orange); }
+        .l-rip { color: var(--negative-orange); } .dot-rip { border: 1.2px solid var(--negative-orange); }
 
-        /* --- Report Overlay (A4 Optimized) --- */
-        #report-overlay {
+        /* --- Report Layer (Now directly linked to nodes) --- */
+        #report-layer {
             position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-            background: rgba(255, 255, 255, 0.98); z-index: 2000;
-            display: none; justify-content: center; overflow-y: auto; opacity: 0; transition: 0.4s;
+            background-color: var(--white); z-index: 2000; display: none; justify-content: center;
+            overflow-y: auto; opacity: 0; transform: translateY(20px); transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
         }
-        #report-overlay.active { display: flex; opacity: 1; }
+        #report-layer.active { display: flex; opacity: 1; transform: translateY(0); }
+        .report-wrapper { width: 100%; max-width: 900px; padding: 100px 60px; display: flex; flex-direction: column; }
+        
+        .download-btn { position: fixed; top: 40px; right: 50px; background: #000; color: #fff; border: none; padding: 12px 24px; border-radius: 20px; font-size: 11px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 8px; z-index: 3000; }
+        .close-report-btn { position: fixed; top: 40px; left: 50px; cursor: pointer; font-size: 11px; font-weight: 700; color: var(--sub-text); text-transform: uppercase; letter-spacing: 0.2em; z-index: 3000; }
+        
+        .report-meta-header { display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 0.5px solid #d2d2d7; padding-bottom: 20px; margin-bottom: 60px; }
+        .report-headline { font-size: 72px; font-weight: 800; letter-spacing: -0.05em; line-height: 1.0; margin-bottom: 50px; }
+        .summary-box { font-size: 22px; line-height: 1.7; font-weight: 500; margin-bottom: 80px; max-width: 800px; border-left: 5px solid var(--accent-color); padding-left: 30px; transition: border-color 0.5s;}
+        
+        .section-label { font-size: 10px; font-weight: 800; letter-spacing: 0.2em; text-transform: uppercase; color: var(--matrix-red); margin-bottom: 25px; transition: color 0.5s;}
+        .dist-bar-container { display: flex; width: 100%; height: 8px; background: #eee; border-radius: 4px; overflow: hidden; margin-bottom: 15px; }
+        .dist-legend { display: flex; gap: 30px; margin-bottom: 80px;}
+        .leg-item { font-size: 11px; font-weight: 600; color: var(--sub-text); display: flex; align-items: center; }
+        .leg-dot { width: 6px; height: 6px; border-radius: 50%; margin-right: 8px; }
 
-        /* A4 縦収まりのためのサイズ調整 */
-        .report-content { width: 790px; background: white; padding: 60px 50px; position: relative; box-sizing: border-box; }
+        .raw-grid-rep { display: grid; grid-template-columns: 1fr 1fr; gap: 50px 80px; border-top: 1px solid #eee; padding-top: 50px; }
+        .raw-item-rep { padding-bottom: 20px; }
+        .raw-city-rep { font-size: 10px; font-weight: 700; color: var(--sub-text); text-transform: uppercase; margin-bottom: 10px; }
 
-        .report-header { display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 1.5px solid #1d1d1f; padding-bottom: 15px; margin-bottom: 40px; }
-        .header-left { font-size: 11px; font-weight: 800; color: #1d1d1f; letter-spacing: 0.15em; }
-        .header-right { font-size: 11px; color: #1d1d1f; }
-        .header-right span { font-weight: 800; color: var(--accent-color); }
-
-        .city-name { font-size: 72px; font-weight: 800; margin: 0 0 35px 0; letter-spacing: -0.04em; line-height: 1; }
-        .insight-section { border-left: 5px solid var(--accent-color); padding-left: 25px; margin-bottom: 45px; }
-        .main-insight { font-size: 20px; font-weight: 600; line-height: 1.5; color: #1d1d1f; }
-
-        .section-label { font-size: 10px; font-weight: 800; color: var(--accent-color); text-transform: uppercase; letter-spacing: 0.1em; margin: 40px 0 15px 0; border-bottom: 1px solid #eee; padding-bottom: 8px; }
-
-        .dist-grid { display: flex; gap: 35px; font-size: 10px; color: #86868b; font-weight: 700; margin-bottom: 20px; }
-        .dist-item { display: flex; align-items: center; gap: 8px; }
-        .dist-dot { width: 7px; height: 7px; border-radius: 50%; }
-
-        .feeds-list { display: grid; grid-template-columns: 1fr 1fr; gap: 30px 40px; }
-        .feed-item { padding-bottom: 18px; border-bottom: 1px dotted #eee; }
-        .feed-label { font-size: 9px; font-weight: 800; color: #ccc; margin-bottom: 8px; letter-spacing: 0.1em; }
-        .feed-jp { font-size: 14px; font-weight: 700; line-height: 1.5; color: #1d1d1f; margin-bottom: 6px; }
-        .feed-og { font-size: 10.5px; color: #a1a1a6; font-style: italic; }
-
-        .report-footer { font-size: 9px; font-weight: 800; text-align: center; color: #1d1d1f; border-top: 1.5px solid #1d1d1f; padding-top: 25px; margin-top: 50px; letter-spacing: 0.2em; }
-
-        .report-actions { position: fixed; top: 40px; right: 40px; display: flex; gap: 12px; z-index: 3000; }
-        .btn { padding: 12px 24px; border-radius: 25px; font-size: 11px; font-weight: 700; cursor: pointer; border: none; }
-        .btn-pdf { background: #000; color: #fff; }
-        .btn-close { background: #f2f2f7; color: #333; }
+        @media print {
+            .download-btn, .close-report-btn, .brand-switcher { display: none !important; }
+            #report-layer { position: static; display: block; opacity: 1; }
+            .report-wrapper { padding: 40px; width: 100%; }
+            body { overflow: visible; }
+        }
     </style>
 </head>
 <body>
 
-    <div class="system-header">
-        <div class="sys-title">Global Automotive Sentiment Oracle</div>
-        <div class="sys-subtitle">Real-time Perception & Market Intelligence</div>
-    </div>
-
     <div class="brand-switcher">
-        <button class="brand-btn active" onclick="switchBrand('Toyota', this)">TOYOTA</button>
-        <button class="brand-btn" onclick="switchBrand('Tesla', this)">TESLA</button>
-        <button class="brand-btn" onclick="switchBrand('BYD', this)">BYD</button>
+        <button class="brand-btn active" onclick="switchCategory('Economy', this)">ECONOMY</button>
+        <button class="brand-btn" onclick="switchCategory('Society', this)">SOCIETY</button>
+        <button class="brand-btn" onclick="switchCategory('Future', this)">FUTURE</button>
     </div>
 
     <div id="map-page">
         <div id="bg-tiles"></div>
-        <div id="node-ny" class="city-node" onclick="openReport('New York')"><div class="node-outer"></div><div class="node-inner"></div><div class="city-label">New York</div></div>
-        <div id="node-london" class="city-node" onclick="openReport('London')"><div class="node-outer"></div><div class="node-inner"></div><div class="city-label">London</div></div>
-        <div id="node-milan" class="city-node" onclick="openReport('Milan')"><div class="node-outer"></div><div class="node-inner"></div><div class="city-label">Milan</div></div>
-        <div id="node-lagos" class="city-node" onclick="openReport('Lagos')"><div class="node-outer"></div><div class="node-inner"></div><div class="city-label">Lagos</div></div>
-        <div id="node-shanghai" class="city-node" onclick="openReport('Shanghai')"><div class="node-outer"></div><div class="node-inner"></div><div class="city-label">Shanghai</div></div>
-        <div id="node-tokyo" class="city-node" onclick="openReport('Tokyo')"><div class="node-outer"></div><div class="node-inner"></div><div class="city-label">Tokyo</div></div>
+        <div class="status-area">
+            <div id="brand-logo" class="logo-main">Matrix Economy Analysis</div>
+            <div class="data-window">De-filtered Insight / Direct Report Mode</div>
+        </div>
+        <div id="node-ny" class="city-node" onclick="openDirectReport('New York')"><div class="node-outer"></div><div class="node-inner"></div><div class="city-label">New York</div></div>
+        <div id="node-london" class="city-node" onclick="openDirectReport('London')"><div class="node-outer"></div><div class="node-inner"></div><div class="city-label">London</div></div>
+        <div id="node-milan" class="city-node" onclick="openDirectReport('Milan')"><div class="node-outer"></div><div class="node-inner"></div><div class="city-label">Milan</div></div>
+        <div id="node-lagos" class="city-node" onclick="openDirectReport('Lagos')"><div class="node-outer"></div><div class="node-inner"></div><div class="city-label">Lagos</div></div>
+        <div id="node-shanghai" class="city-node" onclick="openDirectReport('Shanghai')"><div class="node-outer"></div><div class="node-inner"></div><div class="city-label">Shanghai</div></div>
+        <div id="node-tokyo" class="city-node" onclick="openDirectReport('Tokyo')"><div class="node-outer"></div><div class="node-inner"></div><div class="city-label">Tokyo</div></div>
 
-        <div class="legend">
-            <div class="legend-item"><div class="legend-tag" style="color:var(--positive-green)"><span class="legend-dot" style="background:var(--positive-green)"></span>Positive</div><div class="legend-text">高い満足度と忠誠心。</div></div>
-            <div class="legend-item"><div class="legend-tag" style="color:var(--neutral-gray)"><span class="legend-dot" style="background:var(--neutral-gray)"></span>Neutral</div><div class="legend-text">実用的な選択、静観。</div></div>
-            <div class="legend-item"><div class="legend-tag" style="color:var(--negative-orange)"><span class="legend-dot" style="background:var(--negative-orange)"></span>Negative</div><div class="legend-text">規制や競合への懸念。</div></div>
-            <div class="legend-item"><div class="legend-tag" style="color:var(--negative-orange)"><span class="legend-dot" style="border:1.2px solid var(--negative-orange)"></span>Global Ripple</div><div class="legend-text">外的市場圧力。</div></div>
+        <div class="legend-area">
+            <div class="legend-item"><div class="legend-header l-pos"><span class="legend-dot dot-pos"></span>Resilient</div><div class="legend-desc">安定性の維持。</div></div>
+            <div class="legend-item"><div class="legend-header l-neu"><span class="legend-dot dot-neu"></span>Stagnant</div><div class="legend-desc">変化の停滞。</div></div>
+            <div class="legend-item"><div class="legend-header l-neg"><span class="legend-dot dot-neg"></span>Critical</div><div class="legend-desc">生存コスト増大。</div></div>
+            <div class="legend-item"><div class="legend-header l-rip"><span class="legend-dot dot-rip"></span>Global Ripple</div><div class="legend-desc">共通の構造的絶望。</div></div>
         </div>
     </div>
 
-    <div id="report-overlay">
-        <div class="report-actions">
-            <button class="btn btn-close" onclick="closeReport()">✕ Close</button>
-            <button class="btn btn-pdf" onclick="downloadPDF()">↓ Generate A4 PDF</button>
-        </div>
-        
-        <div id="pdf-content" class="report-content">
-            <div class="report-header">
-                <div class="header-left">AUTOMOTIVE STRATEGIC REPORT</div>
-                <div class="header-right"><span id="rep-count">42,105</span> Records Analyzed / 48H</div>
+    <div id="report-layer">
+        <div class="close-report-btn" onclick="closeReport()">✕ Close Map</div>
+        <button class="download-btn" onclick="window.print()">Download PDF</button>
+        <div class="report-wrapper">
+            <div class="report-meta-header">
+                <div class="meta-left" id="rep-sub-title">Strategic Intelligence Report</div>
+                <div class="data-count" style="font-size:13px; font-weight:600;"><span style="color:var(--accent-color)">24,812</span> Records Analyzed / 48H</div>
+            </div>
+            <div id="rep-headline" class="report-headline">City Name</div>
+            <div id="rep-summary" class="summary-box">City summary insight goes here.</div>
+            
+            <div class="section-label" id="rep-sec-label">Global Sentiment Distribution</div>
+            <div class="dist-bar-container">
+                <div id="bar-eco" style="width:45%; background:var(--matrix-red)"></div>
+                <div id="bar-soc" style="width:35%; background:var(--matrix-blue)"></div>
+                <div id="bar-fut" style="width:20%; background:var(--matrix-purple)"></div>
+            </div>
+            <div class="dist-legend">
+                <div class="leg-item"><span class="leg-dot" style="background:var(--matrix-red)"></span>Economy (45%)</div>
+                <div class="leg-item"><span class="leg-dot" style="background:var(--matrix-blue)"></span>Society (35%)</div>
+                <div class="leg-item"><span class="leg-dot" style="background:var(--matrix-purple)"></span>Future (20%)</div>
             </div>
 
-            <h1 class="city-name" id="rep-city">City</h1>
-
-            <div class="insight-section">
-                <div class="main-insight" id="rep-insight">Insight Summary</div>
-            </div>
-
-            <div class="section-label">MARKET SENTIMENT SEGMENTATION</div>
-            <div class="dist-grid">
-                <div class="dist-item"><span class="dist-dot" style="background:var(--toyota-red)"></span>Powertrain Tech (45%)</div>
-                <div class="dist-item"><span class="dist-dot" style="background:var(--byd-blue)"></span>Mobility Society (35%)</div>
-                <div class="dist-item"><span class="dist-dot" style="background:var(--positive-green)"></span>Future Valuations (20%)</div>
-            </div>
-
-            <div class="section-label">DETAILED RAW VOICES (BILINGUAL)</div>
-            <div class="feeds-list" id="rep-feeds">
-                </div>
-
-            <div class="report-footer">
-                SENTIMENT ORACLE / MATRIX 2026 // CONFIDENTIAL STRATEGIC DATA
-            </div>
+            <div class="section-label">Detailed Raw Voices (Bilingual)</div>
+            <div class="raw-grid-rep" id="rep-voices"></div>
+            <div class="footer-logo" style="font-size: 12px; font-weight: 800; letter-spacing: 0.3em; text-transform: uppercase; border-top: 1px solid #000; padding-top: 20px; margin-top: 60px;">Matrix 2026 / Strategic Intelligence</div>
         </div>
     </div>
 
     <script>
-        let currentBrand = 'Toyota';
-        const bg = document.getElementById('bg-tiles');
-        for (let i = 0; i < 400; i++) {
-            const tile = document.createElement('div'); tile.className = 'tile';
-            tile.style.opacity = Math.random() * 0.5; bg.appendChild(tile);
-        }
-
-        const brandsData = {
-            'Toyota': { color: '#EB0A1E', cities: {
-                'Tokyo': { count: "112,410", insight: "「絶対的な安心感」のインフラ化。リセールバリューまで含めた、失敗しない人生の選択肢。", feeds: [
-                    {jp: "結局、トヨタを選んでおけば間違いない。下取り価格も高いし、合理的。", og: "At the end of the day, you can't go wrong with Toyota."},
-                    {jp: "新型プリウスのデザインは攻めている。感情に訴えかける車を作り始めた。", og: "Toyota is finally making emotional cars."},
-                    {jp: "日本のインフラなら今はハイブリッドこそが現実解だ。", og: "HEV is the most realistic solution for Japan."},
-                    {jp: "街中トヨタばかり。誰もが選ぶ『制服』のように見える。", og: "Toyotas are like a uniform everyone wears."},
-                    {jp: "ランクル250は待つ価値がある。トヨタは裏切らない。", og: "Toyota SUVs never fail."},
-                    {jp: "ヤリスの燃費性能は驚異的。都内移動ならこれ一択。", og: "Yaris efficiency is insane for Tokyo city drive."}
+        let currentCategory = 'Economy';
+        const data = {
+            'Economy': { color: '#E02020', label: "Economy Insight", cities: {
+                'Tokyo': { summary: "「静かなる困窮」。物価高に賃金が追いつかず、消費の選択肢が極限まで削ぎ落とされている。何も変わらないことが、この国で最も恐ろしい安定だ。", feeds: [
+                    {jp: "働いても手取りが増えない。節約というより、もはや生存のための取捨選択だ。", og: "No matter how much I work, take-home pay doesn't increase."},
+                    {jp: "コンビニの弁当がまた上がった。10円単位の戦いが日常になっている。", og: "Convenience store prices rose again."},
+                    {jp: "投資をしないと損という空気があるが、そもそも投資に回す余力がない。", og: "Pressure to invest, but no surplus cash."},
+                    {jp: "中古市場やポイ活が唯一の娯楽。賢い消費が生存戦略。", og: "Second-hand markets are the only entertainment."}
                 ]},
-                'New York': { count: "38,201", insight: "「実用性のスタンダード」から「環境への責任」へ。都市の風景に溶け込む透明な存在。", feeds: [
-                    {jp: "マンハッタンのタクシーはほぼ全てハイブリッド。空気を変えた。", og: "Taxis are hybrid. Toyota changed the city's air."},
-                    {jp: "RAV4は郊外のファミリーの標準装備。安全で目立ちすぎない。", og: "RAV4 is suburban family standard."},
-                    {jp: "テスラがクールだが、充電を考えると結局カムリハイブリッドが最強だ。", og: "Camry Hybrid is unbeatable for ease of use."},
-                    {jp: "トヨタのBEV戦略が遅れている。これからのNYで生き残れるか？", og: "Concerned about Toyota's slow BEV strategy in NY."},
-                    {jp: "ハイランダーは家族旅行に最適。広さと信頼性が抜群。", og: "Highlander is best for family road trips."},
-                    {jp: "冬のNYでもAWDのトヨタなら安心して運転できる。", og: "Toyota AWD gives confidence in NY winters."}
+                'Shanghai': { summary: "「中産階級の資産防衛」。住宅価値の不透明さが最大の不安要素。過剰な競争というシステムに対する消極的な抵抗が広まっている。", feeds: [
+                    {jp: "資産のほとんどが不動産。売れない家を持ち続けるリスクに震えている。", og: "Most assets in real estate. Terrified of the risk."},
+                    {jp: "35歳定年説。リストラされたら、この高いローンをどう払えばいい？", og: "How to pay the mortgage if laid off at 35?"},
+                    {jp: "寝そべりは諦めではない。システムに対する唯一の非暴力的な抵抗だ。", og: "Lying flat is the only non-violent resistance."},
+                    {jp: "今は貯蓄。派手な消費より、確実な現金確保が正解だ。", og: "Cash is the only truth now."}
                 ]},
-                'London': { count: "29,440", insight: "「信頼のツール」とBEV推進圧力。環境規制への対応が急務。", feeds: [
-                    {jp: "ヤリスクロスはロンドンの狭い道に最適。信頼性は抜群だ。", og: "Perfect for London's streets."},
-                    {jp: "ULEZ規制を考えると次は完全な電気自動車にする必要がある。", og: "ULEZ forces my next to be a full BEV."},
-                    {jp: "bZ4Xは良いが、競合EVに比べて航続距離が物足りない。", og: "bZ4X range is lacking vs competitors."},
-                    {jp: "エッセンシャルワーカーにとってトヨタは唯一の選択肢。", og: "The only affordable, unbreakable option."},
-                    {jp: "中古カローラ、10万マイル走っても新品のように動く。", og: "Used Corolla runs like new even at 100k miles."},
-                    {jp: "英国製のカローラを誇りに思う。品質は世界一だ。", og: "Proud of UK-built Corolla."}
+                'New York': { summary: "「生存コストの暴力」。世界で最も稼ぐ都市でありながら、家賃が全てを吸い取っていく巨大な装置と化している。", feeds: [
+                    {jp: "年収10万ドルでもマンハッタンでは『貧困』。家賃が全てを吸い取っていく。", og: "$100k salary is 'poor' in Manhattan."},
+                    {jp: "外食はもはや富裕層の特権。自炊しても卵一パックの価格に驚愕する。", og: "Eating out is for the rich now."},
+                    {jp: "マンハッタンはもはやコミュニティではなく、ただの巨大なATMだ。", og: "Manhattan is just a giant ATM."},
+                    {jp: "チップ文化のインフレ。支払いのたびに精神を削られる思いだ。", og: "Tipping inflation is soul-crushing."}
                 ]},
-                'Lagos': { count: "8,920", insight: "「不滅の生命体」。最も信頼できる『通貨』に近い存在。", feeds: [
-                    {jp: "20年前のカローラがまだ現役。トヨタだけが生き残る。", og: "Only Toyota survives these roads."},
-                    {jp: "中古のトヨタは貯金と同じ。価値が落ちない。", og: "Used Toyota holds value like a savings account."},
-                    {jp: "ハイラックスはビジネスに欠かせない。砂嵐でも止まらない。", og: "Hilux is essential for business."},
-                    {jp: "整備士が目を閉じていても直せる。それがトヨタだ。", og: "Mechanics can fix it with eyes closed."},
-                    {jp: "部品がどこでも手に入る。最新のEVよりも価値がある。", og: "Parts are everywhere. More valuable than EV."},
-                    {jp: "カムリを所有することは成功した証だ。", og: "Owning a Camry is a sign of success."}
+                'Lagos': { summary: "「通貨の崩壊」。物価変動が激しすぎて計画が不可能。通貨を持つこと自体がリスクとなる極限状態。", feeds: [
+                    {jp: "昨日買えたパンが今日は倍。ナイラを持つこと自体がリスクだ。", og: "Bread price doubled overnight. Holding Naira is a risk."},
+                    {jp: "中間層が消滅した。残っているのは極富裕層と、日銭を追う者だけだ。", og: "The middle class has disappeared."},
+                    {jp: "暗号通貨こそが命綱。中央銀行ではなく、デジタル資産を信じている。", og: "We trust digital assets over banks."},
+                    {jp: "通貨が紙屑になる速度に、私たちの夢は追いつけない。", og: "Our dreams can't keep up with the fall."}
                 ]},
-                'Shanghai': { count: "71,550", insight: "「かつての勝者」への敬意と、国内BEV勢の台頭。", feeds: [
-                    {jp: "アルファードは依然として最高のステータスシンボルだ。", og: "Alphard is still the ultimate status symbol."},
-                    {jp: "BYDやNIOを見ると、トヨタの内装は10年遅れている。", og: "Interiors feel ten years behind BYD/NIO."},
-                    {jp: "中国はスマートEV時代。トヨタはまだ単なるメーカーだ。", og: "China is in Smart EV era."},
-                    {jp: "品質は信じているが、規制を考えると次はBEVか。", og: "Trust quality, but regulations push for BEV."},
-                    {jp: "広汽トヨタのサービスは非常に効率的で丁寧だ。", og: "GAC-Toyota service is efficient and polite."},
-                    {jp: "ナビシステムが中国のスマホ文化についていけていない。", og: "Infotainment is behind Chinese mobile culture."}
+                'London': { summary: "「エネルギーの枷」。光熱費高騰が自由を奪う。暖房か食事かという極端な二択を迫られる2026年の首都。", feeds: [
+                    {jp: "光熱費のためにパブでのビールを諦めた。社交が死んでいく。", og: "Gave up the pub to pay energy bills."},
+                    {jp: "冬の室内温度を15度に設定。これが先進国の生活なのか？", og: "15C indoors. Is this life in a developed country?"},
+                    {jp: "暖房か食事か。2026年のロンドンで、私たちはこの二択を迫られている。", og: "Heating or eating. This is the choice."},
+                    {jp: "政治への失望。誰がリーダーになっても、自分の生活が改善される予感がしない。", og: "No leader gives a sense of improvement."}
                 ]},
-                'Milan': { count: "21,005", insight: "「洗練された実用主義」。維持費と信頼性で選ばれる。", feeds: [
-                    {jp: "フィアットの方が可愛いが、トヨタは修理回数が少ない。", og: "FIAT is cuter, but Toyota needs less repairs."},
-                    {jp: "ミラノのArea Cを走るならハイブリッドは経済的だ。", og: "Economical choice for Milan's restricted areas."},
-                    {jp: "C-HRのデザインはミラノの街並みにも馴染んでいる。", og: "C-HR design blends well with Milan streets."},
-                    {jp: "信頼性を重視するなら欧州車より日本車だ。", og: "Japanese cars over European for reliability."},
-                    {jp: "ヤリスハイブリッドはミラノの駐車問題への回答だ。", og: "Yaris Hybrid is the answer to parking."},
-                    {jp: "最近のトヨタはもっとエモーショナルになろうとしている。", og: "Toyota is getting more emotional."}
+                'Milan': { summary: "「見栄の限界」。優雅な外見を維持するコストが内面を空虚にする。若者は独立という概念を失いつつある。", feeds: [
+                    {jp: "ミラノの家賃は欧州トップクラスなのに、給料は20年前と変わらない。", og: "Top rents, 20-year-old salary levels."},
+                    {jp: "優雅な外見を維持するコストが、内面を空虚にさせていく。", og: "The cost of appearances is emptying our souls."},
+                    {jp: "ミラノはもう富裕層だけの遊び場。普通の若者が家を持つことは『神話』だ。", og: "Milan is for the rich. Owning a home is a myth."},
+                    {jp: "ファッション・ウィークの華やかさが、街の貧困を隠している。", og: "Glamour hides the poverty."}
                 ]}
             }},
-            'Tesla': { color: '#171717', cities: null },
-            'BYD': { color: '#005496', cities: null }
+            'Society': { color: '#007AFF', label: "Society Insight", cities: {} },
+            'Future': { color: '#AF52DE', label: "Future Insight", cities: {} }
         };
-        brandsData.Tesla.cities = brandsData.Toyota.cities;
-        brandsData.BYD.cities = brandsData.Toyota.cities;
 
-        function switchBrand(brand, btn) {
-            currentBrand = brand;
+        function switchCategory(cat, btn) {
+            currentCategory = cat;
             document.querySelectorAll('.brand-btn').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
-            document.documentElement.style.setProperty('--accent-color', brandsData[brand].color);
+            document.documentElement.style.setProperty('--accent-color', data[cat].color);
+            document.getElementById('brand-logo').innerText = `Matrix ${cat} Analysis`;
             calculateHeatmap();
         }
 
         function calculateHeatmap() {
-            const cities = brandsData[currentBrand].cities;
-            for (const cityName in cities) {
-                let nodeId = 'node-' + cityName.toLowerCase().replace(' ', '');
-                if (cityName === 'New York') nodeId = 'node-ny';
-                const node = document.getElementById(nodeId);
-                if (!node) continue;
-                node.className = (cityName === 'Shanghai') ? `city-node neg` : `city-node pos`;
-            }
+            document.querySelectorAll('.city-node').forEach(node => {
+                node.className = 'city-node ' + (currentCategory === 'Economy' ? 'neg' : 'neu');
+            });
         }
 
-        function openReport(cityName) {
-            const cityData = brandsData[currentBrand].cities[cityName];
-            document.getElementById('rep-city').innerText = cityName;
-            document.getElementById('rep-count').innerText = cityData.count;
-            document.getElementById('rep-insight').innerText = cityData.insight;
+        function openDirectReport(city) {
+            const catData = data[currentCategory];
+            const cityData = catData.cities[city] || { summary: "Analysis in progress for this category...", feeds: Array(4).fill({jp:"データ収集中...", og:"Processing..."}) };
             
-            const feedContainer = document.getElementById('rep-feeds');
-            feedContainer.innerHTML = "";
-            cityData.feeds.forEach((f, i) => {
-                const item = document.createElement('div');
-                item.className = 'feed-item';
-                item.innerHTML = `
-                    <div class="feed-label">STRATEGIC FEED ${String(i+1).padStart(2, '0')}</div>
-                    <div class="feed-jp">${f.jp}</div>
-                    <div class="feed-og">${f.og}</div>
-                `;
-                feedContainer.appendChild(item);
-            });
+            // レポート内容のセット
+            document.getElementById('rep-sub-title').innerText = `${currentCategory.toUpperCase()} STRATEGIC REPORT`;
+            document.getElementById('rep-headline').innerText = city;
+            document.getElementById('rep-summary').innerText = cityData.summary;
+            document.getElementById('rep-sec-label').style.color = catData.color;
 
-            const overlay = document.getElementById('report-overlay');
-            overlay.style.display = 'flex';
-            setTimeout(() => overlay.classList.add('active'), 10);
-            document.getElementById('map-page').style.opacity = "0.2";
+            const voiceContainer = document.getElementById('rep-voices');
+            voiceContainer.innerHTML = cityData.feeds.map((f, i) => `
+                <div class="raw-item-rep">
+                    <div class="raw-city-rep">RAW FEED 0${i+1}</div>
+                    <div style="font-size:15px; font-weight:600; margin-bottom:8px; line-height:1.7;">${f.jp}</div>
+                    <div style="font-size:12px; color:#a1a1a6;">${f.og}</div>
+                </div>
+            `).join('');
+
+            // マップを引かせてレポートを表示
+            document.getElementById('map-page').style.opacity = "0";
+            document.getElementById('map-page').style.transform = "scale(0.95)";
+            document.getElementById('report-layer').style.display = 'flex';
+            setTimeout(() => document.getElementById('report-layer').classList.add('active'), 10);
         }
 
         function closeReport() {
-            const overlay = document.getElementById('report-overlay');
-            overlay.classList.remove('active');
-            setTimeout(() => overlay.style.display = 'none', 400);
-            document.getElementById('map-page').style.opacity = "1";
+            document.getElementById('report-layer').classList.remove('active');
+            setTimeout(() => {
+                document.getElementById('report-layer').style.display = 'none';
+                document.getElementById('map-page').style.opacity = "1";
+                document.getElementById('map-page').style.transform = "scale(1)";
+            }, 600);
         }
 
-        function downloadPDF() {
-            const element = document.getElementById('pdf-content');
-            const cityName = document.getElementById('rep-city').innerText;
-            const opt = {
-                margin: 0,
-                filename: `Oracle_Report_${currentBrand}_${cityName}.pdf`,
-                image: { type: 'jpeg', quality: 1 },
-                html2canvas: { scale: 3, useCORS: true },
-                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-            };
-            html2pdf().set(opt).from(element).save();
-        }
-
-        window.onload = calculateHeatmap;
+        window.onload = () => {
+            const bg = document.getElementById('bg-tiles');
+            for (let i = 0; i < 400; i++) {
+                const tile = document.createElement('div'); tile.className = 'tile';
+                tile.style.opacity = Math.random() * 0.3; bg.appendChild(tile);
+            }
+            calculateHeatmap();
+        };
     </script>
 </body>
-
 </html>
-
