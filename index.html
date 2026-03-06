@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <title>Matrix 2026 | Ver.1.7 Direct Report</title>
+    <title>Matrix 2026 | Ver.2.4 Absolute</title>
     <style>
         :root {
             --apple-text: #1D1D1F;
@@ -14,9 +14,6 @@
             --white: #ffffff;
             --sub-text: #86868b;
             --origin-text: #A1A1A6;
-            --positive-green: #34C759;
-            --neutral-gray: #8E8E93;
-            --negative-orange: #FF9500;
         }
 
         body, html {
@@ -26,7 +23,13 @@
             overflow: hidden;
         }
 
-        /* --- Category Switcher --- */
+        .map-time-badge {
+            position: absolute; top: 100px; left: 50px; z-index: 100;
+            font-size: 9px; font-weight: 600; color: var(--sub-text);
+            letter-spacing: 0.15em; text-transform: uppercase;
+            border-left: 1px solid var(--accent-color); padding-left: 12px;
+        }
+
         .brand-switcher {
             position: absolute; top: 40px; right: 50px; z-index: 1000;
             display: flex; gap: 10px; background: rgba(245, 245, 247, 0.8);
@@ -39,7 +42,6 @@
         }
         .brand-btn.active { color: white; background: var(--accent-color); box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
 
-        /* --- Global Map Layer --- */
         #map-page {
             position: absolute; width: 100vw; height: 100vh;
             display: flex; flex-direction: column; justify-content: center; align-items: center;
@@ -53,34 +55,16 @@
         .logo-main { font-size: 11px; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; margin-bottom: 6px; color: var(--accent-color); transition: color 0.5s; }
         .data-window { font-size: 9px; font-weight: 500; color: var(--sub-text); letter-spacing: 0.1em; text-transform: uppercase; display: flex; align-items: center; }
         .data-window::before { content: ""; display: inline-block; width: 4px; height: 4px; background-color: var(--accent-color); border-radius: 50%; margin-right: 6px; animation: blink 2s infinite; }
-        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
 
-        /* 都市ノード */
         .city-node { position: absolute; display: flex; align-items: center; justify-content: center; width: 120px; height: 120px; margin: -60px; cursor: pointer; z-index: 500; }
         .node-inner { width: 14px; height: 14px; border-radius: 50%; transition: all 0.8s ease; }
-        .node-outer { position: absolute; width: 40px; height: 40px; border-radius: 50%; border: 1.5px solid var(--negative-orange); opacity: 0.6; animation: pulse 3s infinite; }
+        .node-outer { position: absolute; width: 40px; height: 40px; border-radius: 50%; border: 1.5px solid var(--accent-color); opacity: 0.6; animation: pulse 3s infinite; }
         @keyframes pulse { 0% { transform: scale(0.8); opacity: 0.8; } 100% { transform: scale(2.8); opacity: 0; } }
         .city-label { position: absolute; bottom: 5px; font-size: 11px; font-weight: 800; letter-spacing: 0.12em; text-transform: uppercase; color: var(--sub-text); }
-
-        .city-node.pos .node-inner { background-color: var(--positive-green); box-shadow: 0 0 15px var(--positive-green); }
-        .city-node.neu .node-inner { background-color: var(--neutral-gray); box-shadow: 0 0 10px var(--neutral-gray); }
-        .city-node.neg .node-inner { background-color: var(--negative-orange); box-shadow: 0 0 15px var(--negative-orange); }
 
         #node-ny { top: 38%; left: 25%; } #node-london { top: 30%; left: 47%; } #node-milan { top: 35%; left: 51%; }
         #node-lagos { top: 68%; left: 45%; } #node-shanghai { top: 48%; left: 75%; } #node-tokyo { top: 45%; left: 81%; }
 
-        /* 凡例 */
-        .legend-area { position: absolute; bottom: 40px; left: 50px; z-index: 100; display: flex; gap: 40px; border-top: 1px solid #eee; padding-top: 20px; }
-        .legend-item { display: flex; flex-direction: column; gap: 8px; }
-        .legend-header { display: flex; align-items: center; gap: 8px; font-size: 10px; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; }
-        .legend-dot { width: 8px; height: 8px; border-radius: 50%; }
-        .legend-desc { font-size: 11px; color: var(--sub-text); line-height: 1.4; max-width: 180px; font-weight: 500; }
-        .l-pos { color: var(--positive-green); } .dot-pos { background-color: var(--positive-green); }
-        .l-neu { color: var(--neutral-gray); } .dot-neu { background-color: var(--neutral-gray); }
-        .l-neg { color: var(--negative-orange); } .dot-neg { background-color: var(--negative-orange); }
-        .l-rip { color: var(--negative-orange); } .dot-rip { border: 1.2px solid var(--negative-orange); }
-
-        /* --- Report Layer (Now directly linked to nodes) --- */
         #report-layer {
             position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
             background-color: var(--white); z-index: 2000; display: none; justify-content: center;
@@ -93,24 +77,27 @@
         .close-report-btn { position: fixed; top: 40px; left: 50px; cursor: pointer; font-size: 11px; font-weight: 700; color: var(--sub-text); text-transform: uppercase; letter-spacing: 0.2em; z-index: 3000; }
         
         .report-meta-header { display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 0.5px solid #d2d2d7; padding-bottom: 20px; margin-bottom: 60px; }
-        .report-headline { font-size: 72px; font-weight: 800; letter-spacing: -0.05em; line-height: 1.0; margin-bottom: 50px; }
-        .summary-box { font-size: 22px; line-height: 1.7; font-weight: 500; margin-bottom: 80px; max-width: 800px; border-left: 5px solid var(--accent-color); padding-left: 30px; transition: border-color 0.5s;}
+        .report-headline { font-size: 84px; font-weight: 800; letter-spacing: -0.05em; line-height: 1.0; margin-bottom: 50px; }
+        .summary-box { font-size: 24px; line-height: 1.6; font-weight: 500; margin-bottom: 100px; max-width: 800px; border-left: 6px solid var(--accent-color); padding-left: 35px; transition: border-color 0.5s;}
         
-        .section-label { font-size: 10px; font-weight: 800; letter-spacing: 0.2em; text-transform: uppercase; color: var(--matrix-red); margin-bottom: 25px; transition: color 0.5s;}
-        .dist-bar-container { display: flex; width: 100%; height: 8px; background: #eee; border-radius: 4px; overflow: hidden; margin-bottom: 15px; }
-        .dist-legend { display: flex; gap: 30px; margin-bottom: 80px;}
-        .leg-item { font-size: 11px; font-weight: 600; color: var(--sub-text); display: flex; align-items: center; }
-        .leg-dot { width: 6px; height: 6px; border-radius: 50%; margin-right: 8px; }
+        .section-label { font-size: 11px; font-weight: 800; letter-spacing: 0.3em; text-transform: uppercase; color: var(--accent-color); margin-bottom: 40px; padding-top: 40px; border-top: 1px solid #eee; }
 
-        .raw-grid-rep { display: grid; grid-template-columns: 1fr 1fr; gap: 50px 80px; border-top: 1px solid #eee; padding-top: 50px; }
-        .raw-item-rep { padding-bottom: 20px; }
-        .raw-city-rep { font-size: 10px; font-weight: 700; color: var(--sub-text); text-transform: uppercase; margin-bottom: 10px; }
+        .raw-grid-rep { display: grid; grid-template-columns: 1fr 1fr; gap: 60px 80px; margin-bottom: 100px; }
+        .raw-item-rep { padding-bottom: 10px; break-inside: avoid; }
+        .raw-city-rep { font-size: 10px; font-weight: 800; color: #d2d2d7; text-transform: uppercase; margin-bottom: 12px; letter-spacing: 0.1em; }
+        .raw-meta { display: flex; gap: 15px; font-size: 9px; font-weight: 600; color: #d2d2d7; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.05em; }
+        .raw-jp { font-size: 15px; font-weight: 600; line-height: 1.7; margin-bottom: 10px; color: #1d1d1f; }
+        .raw-og { font-size: 12px; color: var(--origin-text); line-height: 1.5; font-style: italic; }
+
+        .footer-logo { font-size: 12px; font-weight: 800; letter-spacing: 0.3em; text-transform: uppercase; border-top: 1px solid #000; padding-top: 20px; margin-top: 60px; }
 
         @media print {
             .download-btn, .close-report-btn, .brand-switcher { display: none !important; }
             #report-layer { position: static; display: block; opacity: 1; }
             .report-wrapper { padding: 40px; width: 100%; }
             body { overflow: visible; }
+            .raw-grid-rep { display: block; }
+            .raw-item-rep { margin-bottom: 40px; page-break-inside: avoid; }
         }
     </style>
 </head>
@@ -126,21 +113,20 @@
         <div id="bg-tiles"></div>
         <div class="status-area">
             <div id="brand-logo" class="logo-main">Matrix Economy Analysis</div>
-            <div class="data-window">De-filtered Insight / Direct Report Mode</div>
+            <div class="data-window">De-filtered Insight / Global Intelligence Mode</div>
         </div>
-        <div id="node-ny" class="city-node" onclick="openDirectReport('New York')"><div class="node-outer"></div><div class="node-inner"></div><div class="city-label">New York</div></div>
-        <div id="node-london" class="city-node" onclick="openDirectReport('London')"><div class="node-outer"></div><div class="node-inner"></div><div class="city-label">London</div></div>
-        <div id="node-milan" class="city-node" onclick="openDirectReport('Milan')"><div class="node-outer"></div><div class="node-inner"></div><div class="city-label">Milan</div></div>
-        <div id="node-lagos" class="city-node" onclick="openDirectReport('Lagos')"><div class="node-outer"></div><div class="node-inner"></div><div class="city-label">Lagos</div></div>
-        <div id="node-shanghai" class="city-node" onclick="openDirectReport('Shanghai')"><div class="node-outer"></div><div class="node-inner"></div><div class="city-label">Shanghai</div></div>
-        <div id="node-tokyo" class="city-node" onclick="openDirectReport('Tokyo')"><div class="node-outer"></div><div class="node-inner"></div><div class="city-label">Tokyo</div></div>
+        
+        <div class="map-time-badge">
+            Intelligence Window: Last 48 Hours<br>
+            <span id="current-utc" style="font-weight: 400; opacity: 0.7;">UTC 2026-03-06 16:15:00</span>
+        </div>
 
-        <div class="legend-area">
-            <div class="legend-item"><div class="legend-header l-pos"><span class="legend-dot dot-pos"></span>Resilient</div><div class="legend-desc">安定性の維持。</div></div>
-            <div class="legend-item"><div class="legend-header l-neu"><span class="legend-dot dot-neu"></span>Stagnant</div><div class="legend-desc">変化の停滞。</div></div>
-            <div class="legend-item"><div class="legend-header l-neg"><span class="legend-dot dot-neg"></span>Critical</div><div class="legend-desc">生存コスト増大。</div></div>
-            <div class="legend-item"><div class="legend-header l-rip"><span class="legend-dot dot-rip"></span>Global Ripple</div><div class="legend-desc">共通の構造的絶望。</div></div>
-        </div>
+        <div id="node-ny" class="city-node" onclick="openDirectReport('New York')"><div class="node-outer"></div><div class="node-inner" style="background:var(--accent-color)"></div><div class="city-label">New York</div></div>
+        <div id="node-london" class="city-node" onclick="openDirectReport('London')"><div class="node-outer"></div><div class="node-inner" style="background:var(--accent-color)"></div><div class="city-label">London</div></div>
+        <div id="node-milan" class="city-node" onclick="openDirectReport('Milan')"><div class="node-outer"></div><div class="node-inner" style="background:var(--accent-color)"></div><div class="city-label">Milan</div></div>
+        <div id="node-lagos" class="city-node" onclick="openDirectReport('Lagos')"><div class="node-outer"></div><div class="node-inner" style="background:var(--accent-color)"></div><div class="city-label">Lagos</div></div>
+        <div id="node-shanghai" class="city-node" onclick="openDirectReport('Shanghai')"><div class="node-outer"></div><div class="node-inner" style="background:var(--accent-color)"></div><div class="city-label">Shanghai</div></div>
+        <div id="node-tokyo" class="city-node" onclick="openDirectReport('Tokyo')"><div class="node-outer"></div><div class="node-inner" style="background:var(--accent-color)"></div><div class="city-label">Tokyo</div></div>
     </div>
 
     <div id="report-layer">
@@ -149,111 +135,344 @@
         <div class="report-wrapper">
             <div class="report-meta-header">
                 <div class="meta-left" id="rep-sub-title">Strategic Intelligence Report</div>
-                <div class="data-count" style="font-size:13px; font-weight:600;"><span style="color:var(--accent-color)">24,812</span> Records Analyzed / 48H</div>
+                <div class="data-count" style="font-size:13px; font-weight:600;"><span id="accent-count" style="color:var(--accent-color)">32,481</span> Records / Last 48H</div>
             </div>
             <div id="rep-headline" class="report-headline">City Name</div>
-            <div id="rep-summary" class="summary-box">City summary insight goes here.</div>
-            
-            <div class="section-label" id="rep-sec-label">Global Sentiment Distribution</div>
-            <div class="dist-bar-container">
-                <div id="bar-eco" style="width:45%; background:var(--matrix-red)"></div>
-                <div id="bar-soc" style="width:35%; background:var(--matrix-blue)"></div>
-                <div id="bar-fut" style="width:20%; background:var(--matrix-purple)"></div>
-            </div>
-            <div class="dist-legend">
-                <div class="leg-item"><span class="leg-dot" style="background:var(--matrix-red)"></span>Economy (45%)</div>
-                <div class="leg-item"><span class="leg-dot" style="background:var(--matrix-blue)"></span>Society (35%)</div>
-                <div class="leg-item"><span class="leg-dot" style="background:var(--matrix-purple)"></span>Future (20%)</div>
-            </div>
-
-            <div class="section-label">Detailed Raw Voices (Bilingual)</div>
+            <div id="rep-summary" class="summary-box">Summary content...</div>
+            <div class="section-label" id="raw-label">Raw Voices: The Sound of the City (10 Samples)</div>
             <div class="raw-grid-rep" id="rep-voices"></div>
-            <div class="footer-logo" style="font-size: 12px; font-weight: 800; letter-spacing: 0.3em; text-transform: uppercase; border-top: 1px solid #000; padding-top: 20px; margin-top: 60px;">Matrix 2026 / Strategic Intelligence</div>
+            <div class="footer-logo">Matrix 2026 / Strategic Intelligence</div>
         </div>
     </div>
 
     <script>
         let currentCategory = 'Economy';
-        const data = {
-            'Economy': { color: '#E02020', label: "Economy Insight", cities: {
-                'Tokyo': { summary: "「静かなる困窮」。物価高に賃金が追いつかず、消費の選択肢が極限まで削ぎ落とされている。何も変わらないことが、この国で最も恐ろしい安定だ。", feeds: [
-                    {jp: "働いても手取りが増えない。節約というより、もはや生存のための取捨選択だ。", og: "No matter how much I work, take-home pay doesn't increase."},
-                    {jp: "コンビニの弁当がまた上がった。10円単位の戦いが日常になっている。", og: "Convenience store prices rose again."},
-                    {jp: "投資をしないと損という空気があるが、そもそも投資に回す余力がない。", og: "Pressure to invest, but no surplus cash."},
-                    {jp: "中古市場やポイ活が唯一の娯楽。賢い消費が生存戦略。", og: "Second-hand markets are the only entertainment."}
-                ]},
-                'Shanghai': { summary: "「中産階級の資産防衛」。住宅価値の不透明さが最大の不安要素。過剰な競争というシステムに対する消極的な抵抗が広まっている。", feeds: [
-                    {jp: "資産のほとんどが不動産。売れない家を持ち続けるリスクに震えている。", og: "Most assets in real estate. Terrified of the risk."},
-                    {jp: "35歳定年説。リストラされたら、この高いローンをどう払えばいい？", og: "How to pay the mortgage if laid off at 35?"},
-                    {jp: "寝そべりは諦めではない。システムに対する唯一の非暴力的な抵抗だ。", og: "Lying flat is the only non-violent resistance."},
-                    {jp: "今は貯蓄。派手な消費より、確実な現金確保が正解だ。", og: "Cash is the only truth now."}
-                ]},
-                'New York': { summary: "「生存コストの暴力」。世界で最も稼ぐ都市でありながら、家賃が全てを吸い取っていく巨大な装置と化している。", feeds: [
-                    {jp: "年収10万ドルでもマンハッタンでは『貧困』。家賃が全てを吸い取っていく。", og: "$100k salary is 'poor' in Manhattan."},
-                    {jp: "外食はもはや富裕層の特権。自炊しても卵一パックの価格に驚愕する。", og: "Eating out is for the rich now."},
-                    {jp: "マンハッタンはもはやコミュニティではなく、ただの巨大なATMだ。", og: "Manhattan is just a giant ATM."},
-                    {jp: "チップ文化のインフレ。支払いのたびに精神を削られる思いだ。", og: "Tipping inflation is soul-crushing."}
-                ]},
-                'Lagos': { summary: "「通貨の崩壊」。物価変動が激しすぎて計画が不可能。通貨を持つこと自体がリスクとなる極限状態。", feeds: [
-                    {jp: "昨日買えたパンが今日は倍。ナイラを持つこと自体がリスクだ。", og: "Bread price doubled overnight. Holding Naira is a risk."},
-                    {jp: "中間層が消滅した。残っているのは極富裕層と、日銭を追う者だけだ。", og: "The middle class has disappeared."},
-                    {jp: "暗号通貨こそが命綱。中央銀行ではなく、デジタル資産を信じている。", og: "We trust digital assets over banks."},
-                    {jp: "通貨が紙屑になる速度に、私たちの夢は追いつけない。", og: "Our dreams can't keep up with the fall."}
-                ]},
-                'London': { summary: "「エネルギーの枷」。光熱費高騰が自由を奪う。暖房か食事かという極端な二択を迫られる2026年の首都。", feeds: [
-                    {jp: "光熱費のためにパブでのビールを諦めた。社交が死んでいく。", og: "Gave up the pub to pay energy bills."},
-                    {jp: "冬の室内温度を15度に設定。これが先進国の生活なのか？", og: "15C indoors. Is this life in a developed country?"},
-                    {jp: "暖房か食事か。2026年のロンドンで、私たちはこの二択を迫られている。", og: "Heating or eating. This is the choice."},
-                    {jp: "政治への失望。誰がリーダーになっても、自分の生活が改善される予感がしない。", og: "No leader gives a sense of improvement."}
-                ]},
-                'Milan': { summary: "「見栄の限界」。優雅な外見を維持するコストが内面を空虚にする。若者は独立という概念を失いつつある。", feeds: [
-                    {jp: "ミラノの家賃は欧州トップクラスなのに、給料は20年前と変わらない。", og: "Top rents, 20-year-old salary levels."},
-                    {jp: "優雅な外見を維持するコストが、内面を空虚にさせていく。", og: "The cost of appearances is emptying our souls."},
-                    {jp: "ミラノはもう富裕層だけの遊び場。普通の若者が家を持つことは『神話』だ。", og: "Milan is for the rich. Owning a home is a myth."},
-                    {jp: "ファッション・ウィークの華やかさが、街の貧困を隠している。", og: "Glamour hides the poverty."}
-                ]}
-            }},
-            'Society': { color: '#007AFF', label: "Society Insight", cities: {} },
-            'Future': { color: '#AF52DE', label: "Future Insight", cities: {} }
+
+        const cityDatabase = {
+            'Tokyo': {
+                'Economy': {
+                    summary: "「静かなる困窮」。実質賃金の低下が、具体的な『食の選択肢』の喪失として現れている。何も変わらないことが、この国で最も恐ろしい安定となっている。",
+                    feeds: [
+                        {jp: "働いても手取りが増えない。節約ではなく生存だ。", og: "働いても手取りが増えない。節約ではなく生存だ。", src: "X / Japan", time: "2h ago"},
+                        {jp: "コンビニの弁当がまた上がった。10円単位の戦いだ。", og: "コンビニの弁当がまた上がった。10円単位の戦いだ。", src: "Reddit / Tokyo", time: "4h ago"},
+                        {jp: "投資をしないと損という空気。でも余力がない。", og: "投資をしないと損という空気。でも余力がない。", src: "Yahoo Finance", time: "6h ago"},
+                        {jp: "中古市場やポイ活が唯一の娯楽。賢い消費が生存戦略。", og: "中古市場やポイ活が唯一の娯楽。賢い消費が生存戦略。", src: "X / Japan", time: "8h ago"},
+                        {jp: "電気代の請求を見るのが怖い。夏を越せる自信がない。", og: "電気代の請求を見るのが怖い。夏を越せる自信がない。", src: "News Comment", time: "12h ago"},
+                        {jp: "日本は安いと観光客は言う。私たちは自国で最下層だ。", og: "日本は安いと観光客は言う。私たちは自国で最下層だ。", src: "Reddit / Japan", time: "15h ago"},
+                        {jp: "昇給があっても社会保険料で消える。実質的な減税などない。", og: "昇給があっても社会保険料で消える。実質的な減税などない。", src: "X / Finance", time: "18h ago"},
+                        {jp: "スーパーの特売日をハシゴ。時間が奪われていく感覚。", og: "スーパーの特売日をハシゴ。時間が奪われていく感覚。", src: "Blog Feed", time: "21h ago"},
+                        {jp: "老後の蓄えなんて無理。今を生き延びるだけで精一杯。", og: "老後の蓄えなんて無理。今を生き延びるだけで精一杯。", src: "Reddit / Life", time: "1d ago"},
+                        {jp: "若者が海外へ逃げる。ここには希望のインフレがない。", og: "若者が海外へ逃げる。ここには希望のインフレがない。", src: "YouTube / Tokyo", time: "1d ago"}
+                    ]
+                },
+                'Society': {
+                    summary: "「希薄化する共同体」。物理的な繋がりがコストと化し、人々はデジタル空間へ逃避している。",
+                    feeds: [
+                        {jp: "隣に誰が住んでいるか知らない。それがこの街の『礼儀』だ。", og: "隣に誰が住んでいるか知らない。それがこの街の『礼儀』だ。", src: "X / Society", time: "3h ago"},
+                        {jp: "SNSのフォロワーは増えるが、深夜に電話できる相手はいない。", og: "SNSのフォロワーは増えるが、深夜に電話できる相手はいない。", src: "Blog", time: "5h ago"},
+                        {jp: "孤独死のニュースが日常。明日は我が身という感覚。", og: "孤独死のニュースが日常。明日は我が身という感覚。", src: "Local News", time: "7h ago"},
+                        {jp: "飲み会を断るのが当たり前に。社交というコストが重い。", og: "飲み会を断るのが当たり前に。社交というコストが重い。", src: "X / Japan", time: "9h ago"},
+                        {jp: "公園から子供の声が消えた。苦情がコミュニティを壊す。", og: "公園から子供の声が消えた。苦情がコミュニティを壊す。", src: "Community Board", time: "12h ago"},
+                        {jp: "誰とも話さない一日。セルフレジだけが相手だ。", og: "誰とも話さない一日。セルフレジだけが相手だ。", src: "Diary", time: "15h ago"},
+                        {jp: "家族という形も崩れ始めた。一人暮らしの高齢者が溢れる。", og: "家族という形も崩れ始めた。一人暮らしの高齢者が溢れる。", src: "Reddit", time: "18h ago"},
+                        {jp: "ネットの誹謗中傷がリアルよりリアル。言葉が刺さる。", og: "ネットの誹謗中傷がリアルよりリアル。言葉が刺さる。", src: "X", time: "21h ago"},
+                        {jp: "対面より文字のほうが安心する。人間の生々しさが怖い。", og: "対面より文字のほうが安心する。人間の生々しさが怖い。", src: "Life Blog", time: "1d ago"},
+                        {jp: "孤独は自由だと言い聞かせている。そうしないと壊れる。", og: "孤独は自由だと言い聞かせている。そうしないと壊れる。", src: "Reddit / Tokyo", time: "1d ago"}
+                    ]
+                },
+                'Future': {
+                    summary: "「期待値ゼロの均衡」。現状維持に全力が注がれている。",
+                    feeds: [
+                        {jp: "30年後の自分を想像できない。想像すると絶望しかない。", og: "30年後の自分を想像できない。想像すると絶望しかない。", src: "Reddit", time: "4h ago"},
+                        {jp: "AIが仕事を奪う前に、やる気が先に尽きてしまった。", og: "AIが仕事を奪う前に、やる気が先に尽きてしまった。", src: "YouTube", time: "6h ago"},
+                        {jp: "年金はもらえないものとして計算。国家への信頼はない。", og: "年金はもらえないものとして計算。国家への信頼はない。", src: "Finance News", time: "8h ago"},
+                        {jp: "子供を産むのは贅沢品。招く責任を持てない。", og: "子供を産むのは贅沢品。招く責任を持てない。", src: "X / Parenting", time: "10h ago"},
+                        {jp: "選挙に行っても何も変わらない。システムは高齢者のため。", og: "選挙に行っても何も変わらない。システムは高齢者のため。", src: "Political Blog", time: "13h ago"},
+                        {jp: "日本という沈みゆく船から、賢い人から順に脱出している。", og: "日本という沈みゆく船から、賢い人から順に脱出している。", src: "LinkedIn", time: "16h ago"},
+                        {jp: "『いつか良くなる』という言葉が、最も空虚に響く。", og: "『いつか良くなる』という言葉が、最も空虚に響く。", src: "Reddit / Life", time: "19h ago"},
+                        {jp: "自分たちは、ただ後始末をするために生まれてきた気がする。", og: "自分たちは、ただ後始末をするために生まれてきた気がする。", src: "X / Generation", time: "22h ago"},
+                        {jp: "テクノロジーは進歩するが、心は退歩しているのではないか。", og: "テクノロジーは進歩するが、心は退歩しているのではないか。", src: "Medium", time: "1d ago"},
+                        {jp: "未来なんて来なくていい。ずっと今日が続けばいいのに。", og: "未来なんて来なくていい。ずっと今日が続けばいいのに。", src: "Reddit / Tokyo", time: "1d ago"}
+                    ]
+                }
+            },
+            'Shanghai': {
+                'Economy': {
+                    summary: "「中産階級の資産防衛」。住宅価値の不透明さが最大の不安要素。消極的な抵抗『寝そべり』が定着。",
+                    feeds: [
+                        {jp: "資産のほとんどが不動産。売れない家を持つリスク。", og: "大部分财富都在房产里。拿着卖不掉的房子真可怕。", src: "Weibo", time: "1h ago"},
+                        {jp: "35歳定年説。リストラされたらローンが払えない。", og: "35岁中年危机。如果被裁员，房贷怎么办？", src: "Zhihu", time: "3h ago"},
+                        {jp: "寝そべりは諦めではない。システムに対する非暴力的な抵抗だ。", og: "躺平不是放弃，而是对系统的一种非暴力抵抗。", src: "WeChat", time: "5h ago"},
+                        {jp: "今は貯蓄。派手な消費より、確実な現金確保が正解だ。", og: "现在存钱才是王道。现金比虚假消费更可靠。", src: "Xiaohongshu", time: "7h ago"},
+                        {jp: "上海のネオンは眩しすぎるが、私の未来を照らしていない。", og: "上海的霓虹灯很亮，但照不亮我的未来。", src: "Weibo", time: "9h ago"},
+                        {jp: "外資系企業が去っていく。オフィスが空洞化している。", og: "外企都在撤离。写字楼越来越空了。", src: "Finance News", time: "12h ago"},
+                        {jp: "かつての勢いはどこへ？今の上海はどこか息苦しい。", og: "以前的活力哪儿去了？现在的上海让人喘不过气。", src: "Zhihu", time: "16h ago"},
+                        {jp: "子供の教育費は天井知らず。これ以上何を削ればいい？", og: "孩子的教育费是个无底洞。还能削减什么？", src: "Xiaohongshu", time: "20h ago"},
+                        {jp: "資産価値が下がるのを、ただ黙って見守るしかない。", og: "眼睁睁看着资产贬值，这种无力感真难受。", src: "Weibo", time: "1d ago"},
+                        {jp: "自由な消費ができるのは、もう一部の特権階級だけだ。", og: "能自由消费的，现在只剩下那一小撮特权阶层了。", src: "Zhihu", time: "1d ago"}
+                    ]
+                },
+                'Society': {
+                    summary: "「過剰競争の疲弊」。数値化された成功への強迫観念が、人間関係を効率性の道具に変えている。",
+                    feeds: [
+                        {jp: "SNSのいいねが、唯一の社会的な生存証明だ。", og: "社交媒体上的点赞，是我唯一的社会生存证明。", src: "Weibo", time: "2h ago"},
+                        {jp: "友達との会話も、どこか利益の交換のように感じる。", og: "和朋友聊天也感觉像是在进行利益交换。", src: "Zhihu", time: "4h ago"},
+                        {jp: "結婚は愛ではなく、資産合併になった。", og: "结婚不再是因为爱，而是两家人的资产合并。", src: "WeChat", time: "6h ago"},
+                        {jp: "常に誰かと比較されている。終わりはない。", og: "永远在和别人比较。这场竞赛没有尽头。", src: "Xiaohongshu", time: "8h ago"},
+                        {jp: "孤独を感じても、弱さを見せることは敗北を意味する。", og: "即便感到孤独，展示软弱也意味着失败。", src: "Weibo", time: "11h ago"},
+                        {jp: "親の期待が重すぎて、自分の顔を失ってしまった。", og: "父母的期待太重了，我已经失去了自我。", src: "Diary", time: "14h ago"},
+                        {jp: "雑踏の中で、自分だけが透明人間になった気分だ。", og: "在人群中，感觉自己像个透明人。", src: "Weibo", time: "17h ago"},
+                        {jp: "信頼できるのは自分のお金だけ。人はいつか裏切る。", og: "唯一能信任的是自己的钱。人总会背叛的。", src: "Zhihu", time: "20h ago"},
+                        {jp: "効率化された社会で、無駄な感情は切り捨てられる。", og: "在这个高效的社会里，无用的情感都被抛弃了。", src: "Medium", time: "23h ago"},
+                        {jp: "誰もが成功を急いでいる。立ち止まることは罪だ。", og: "每个人都在急于成功。停下来就是一种罪过。", src: "Weibo", time: "1d ago"}
+                    ]
+                },
+                'Future': {
+                    summary: "「成長神話の終焉」。若者は低体温な安定を求め始めている。",
+                    feeds: [
+                        {jp: "公務員試験が一番の競争。不確実な未来より現状を。", og: "考公是唯一的出路。比起不确定的未来，还是抓住现在。", src: "Zhihu", time: "3h ago"},
+                        {jp: "AIが進化しても、生活が楽になる予感がしない。", og: "AI再怎么进化，也没感觉生活会变轻松。", src: "Tech News", time: "5h ago"},
+                        {jp: "かつての『チャイナドリーム』は教科書の中だけの話。", og: "以前的“中国梦”现在只存在于教科书里。", src: "Weibo", time: "8h ago"},
+                        {jp: "未来を語るより、今日の晩御飯をどう安く済ませるかだ。", og: "与其谈论未来，不如想想今晚怎么吃得省钱。", src: "Xiaohongshu", time: "11h ago"},
+                        {jp: "環境問題より、来月の自分の雇用形態のほうが大事だ。", og: "与其关心环境，不如关心下个月的合同怎么签。", src: "Zhihu", time: "14h ago"},
+                        {jp: "大きな変化は望まない。今の生活が維持されればいい。", og: "不再渴望大变化。只要现在的日子能维持下去就好。", src: "WeChat", time: "17h ago"},
+                        {jp: "海外へ行く友人が増えた。挑戦する場所ではないのか。", og: "出国的同学越来越多。这里已经不适合奋斗了吗？", src: "LinkedIn", time: "20h ago"},
+                        {jp: "夢を見るコストが高すぎ。現実を見るのが精一杯だ。", og: "做梦的成本太高了。看清现实就已经拼尽全力。", src: "Weibo", time: "23h ago"},
+                        {jp: "テクノロジーの監視で、未来は管理された一本道だ。", og: "在技术监控下，未来看起来像是一条被管好的单行道。", src: "Tech Blog", time: "1d ago"},
+                        {jp: "新しい時代が来るというが、それが私たちのためのものか？", og: "都说新时代要来了，但那是属于我们的吗？", src: "Zhihu", time: "1d ago"}
+                    ]
+                }
+            },
+            'New York': {
+                'Economy': {
+                    summary: "「生存コストの暴力」。家賃が全てを吸い取っていく巨大な装置と化したマンハッタン。",
+                    feeds: [
+                        {jp: "年収10万ドルでもここでは『貧困』だ。", og: "Even with a $100k salary, you're 'poor' in Manhattan.", src: "Reddit / NYC", time: "1h ago"},
+                        {jp: "外食は富裕層の特権。卵一パックの価格に驚く。", og: "Dining out is for the rich. A carton of eggs is a luxury now.", src: "X / NYC", time: "2h ago"},
+                        {jp: "マンハッタンはもはやコミュニティではなく巨大なATMだ。", og: "Manhattan isn't a community anymore; it's a giant ATM.", src: "NYC Blog", time: "5h ago"},
+                        {jp: "チップ文化のインフレ。支払いのたびに精神を削られる。", og: "Tipping inflation is soul-crushing with every payment.", src: "Reddit", time: "7h ago"},
+                        {jp: "治安が悪化しているが、家賃が高すぎてタクシーも呼べない。", og: "Subway safety is down, but rent is too high for Uber.", src: "Citizen App", time: "10h ago"},
+                        {jp: "アーティストは皆追い出された。魂のない街だ。", og: "Artists were all pushed out. This city has no soul left.", src: "NYT Comment", time: "14h ago"},
+                        {jp: "家賃のために3つの仕事を掛け持っている。", og: "I'm juggling three jobs just to pay the rent.", src: "Reddit", time: "18h ago"},
+                        {jp: "保険があっても病院に行けない。自己負担が高すぎる。", og: "I have insurance but can't see a doctor. Deductibles are insane.", src: "X / Health", time: "22h ago"},
+                        {jp: "NYは夢を叶える場所から、夢を搾取する場所になった。", og: "NYC went from making dreams to exploiting them.", src: "Medium", time: "1d ago"},
+                        {jp: "いつかこの街を出る。それが唯一の目標だ。", og: "Leaving NYC is my only goal now.", src: "Reddit / NYC", time: "1d ago"}
+                    ]
+                },
+                'Society': {
+                    summary: "「隔離された孤独」。所得による居住エリアの完全な隔離と分断。",
+                    feeds: [
+                        {jp: "一本隣の通りは別世界。分断が壁のように存在する。", og: "One block away is a different world. Division is a wall.", src: "Reddit", time: "3h ago"},
+                        {jp: "ホームレスが増え、誰も彼らと目を合わせない。", og: "Homelessness is up, but everyone avoids eye contact.", src: "X / NYC", time: "6h ago"},
+                        {jp: "高級マンションの横でゴミを漁る人。これが2026年のNY。", og: "Trash picking next to luxury condos. This is NY 2026.", src: "Insta / NYC", time: "9h ago"},
+                        {jp: "オンラインは派手だが、リアルな近所付き合いは皆無。", og: "Loud online, zero real neighborhood ties.", src: "Reddit", time: "12h ago"},
+                        {jp: "安全を買える者と、リスクの中で生きる者の差が開きすぎた。", og: "The gap between safety-buyers and risk-livers is too wide.", src: "Citizen App", time: "15h ago"},
+                        {jp: "人種や政治、あらゆるラインで人々が争っている。", og: "People fighting over race, politics, every possible line.", src: "X", time: "18h ago"},
+                        {jp: "孤独を感じるのは、自分だけが取り残されているからだ。", og: "I feel lonely because I feel left behind.", src: "Reddit / Life", time: "21h ago"},
+                        {jp: "街のエネルギーが、今はただの焦燥感に変わった。", og: "City's energy has turned into pure anxiety.", src: "Blog", time: "1d ago"},
+                        {jp: "誰もが主役になりたいが、観客は一人もいない。", og: "Everyone wants to be the star, but there's no audience.", src: "X / NYC", time: "1d ago"},
+                        {jp: "この街の優しさは、いつも高価な代償を伴う。", og: "Kindness in this city always comes with a high price tag.", src: "Medium", time: "1d ago"}
+                    ]
+                },
+                'Future': {
+                    summary: "「ネクスト・エスケープ」。NYの凋落を感じた人々が次を模索している。",
+                    feeds: [
+                        {jp: "次のシリコンバレーはどこだ？ここではない。", og: "Where's the next SV? At least not here.", src: "LinkedIn", time: "4h ago"},
+                        {jp: "気候変動で沈む前に、経済的な重圧で沈んでしまう。", og: "The city will sink under economic pressure before the sea rises.", src: "Reddit", time: "8h ago"},
+                        {jp: "子供を育てる場所ではない。未来を託せない。", og: "Not a place to raise kids. Can't trust the future here.", src: "X / Parenting", time: "12h ago"},
+                        {jp: "リモートが普及し、住む理由がブランド維持だけになった。", og: "Remote work left only the 'brand' to stay.", src: "Forbes Feed", time: "16h ago"},
+                        {jp: "AIがウォール街を変える。スキルはゴミになるかもしれない。", og: "AI changes Wall St. My skills might become trash.", src: "Tech Blog", time: "20h ago"},
+                        {jp: "10年後のこの街が、廃墟と化したテーマパークに見える。", og: "In 10 years, this city looks like a ruined theme park.", src: "Reddit", time: "1d ago"},
+                        {jp: "富裕層はすでにフロリダへ逃げた。残されたのは支払い担当だ。", og: "The rich fled to FL. We're just left to pay the bills.", src: "Bloomberg Comment", time: "1d ago"},
+                        {jp: "若者の勢いがない。いかに支出を抑えるかしか考えていない。", og: "No youth energy. Everyone's just cutting costs.", src: "X / GenZ", time: "1d ago"},
+                        {jp: "イノベーションは、もうNYの外で起きている。", og: "Innovation is happening outside of NYC now.", src: "Medium", time: "1d ago"},
+                        {jp: "この街の未来を信じているのは、観光客だけだ。", og: "Only tourists believe in the future of this city.", src: "Reddit / NYC", time: "1d ago"}
+                    ]
+                }
+            },
+            'London': {
+                'Economy': {
+                    summary: "「エネルギーの枷」。暖房か食事かという極端な二択を迫られる2026年の首都。",
+                    feeds: [
+                        {jp: "光熱費のためにパブを諦めた。社交が死んでいく。", og: "Gave up the pub for energy bills. Social life is dying.", src: "X / London", time: "2h ago"},
+                        {jp: "冬の室内温度を15度に設定。これが先進国か？", og: "15C indoors. Is this really a developed country?", src: "BBC Feed", time: "4h ago"},
+                        {jp: "暖房か食事か。私たちはこの二択を迫られている。", og: "Heating or eating. This is the choice we're facing.", src: "Reddit / UK", time: "6h ago"},
+                        {jp: "ロンドンは投資家のための金庫だ。教師は住めない。", og: "London is a vault for investors. Teachers can't live here.", src: "Guardian Feed", time: "9h ago"},
+                        {jp: "政治への失望。誰がリーダーでも変わらない。", og: "No leader gives a sense of improvement. Pure disappointment.", src: "X / UKPolitics", time: "13h ago"},
+                        {jp: "大英帝国の残影も、今の請求書の前では無意味だ。", og: "Empire shadows are meaningless against these bills.", src: "Daily Mail", time: "17h ago"},
+                        {jp: "賃貸の競争が異常。汚い部屋に給料の半分が消える。", og: "Rental competition is insane. Half my pay for a tiny room.", src: "Reddit", time: "20h ago"},
+                        {jp: "交通費の値上げで、都心へ行くことすら躊躇する。", og: "Commuter costs make me hesitate to go to the city center.", src: "Evening Standard", time: "23h ago"},
+                        {jp: "富裕層が買い占め、私たちは労働力として飼われている。", og: "The rich bought London; we're just kept as labor.", src: "Reddit / London", time: "1d ago"},
+                        {jp: "ブレグジットのツケを、なぜ私たちが払い続けるのか。", og: "Why are we still paying the price for Brexit?", src: "X", time: "1d ago"}
+                    ]
+                },
+                'Society': {
+                    summary: "「パブ文化の終焉」。社交の場が消え、孤独が深刻な社会問題となっている。",
+                    feeds: [
+                        {jp: "馴染みのパブが閉店した。居場所がまた一つ消えた。", og: "My local pub closed. Another space of mine gone.", src: "BBC News", time: "3h ago"},
+                        {jp: "通りで人と目が合っても、皆どこか疲れた顔をしている。", og: "Everyone looks tired, even on the street.", src: "X / London", time: "6h ago"},
+                        {jp: "孤独を紛らわすためのアルコールが増えた。不健康な循環だ。", og: "Drinking more to escape loneliness. An unhealthy cycle.", src: "Reddit", time: "9h ago"},
+                        {jp: "センターの予算がカットされ、子供の遊び場がない。", og: "Community centers' budgets cut; no place for kids.", src: "Local Board", time: "12h ago"},
+                        {jp: "階級社会の壁が、今は経済的な壁としてより強固になった。", og: "Class walls are now even firmer as economic walls.", src: "Guardian", time: "15h ago"},
+                        {jp: "オンライン議論は過激だが、隣人と話す機会はない。", og: "Loud online debates, zero neighborly talk.", src: "Reddit", time: "18h ago"},
+                        {jp: "誰もが何かに怒っている。その矛先はいつも弱者に向かう。", og: "Everyone is angry at something. It targets the weak.", src: "X", time: "21h ago"},
+                        {jp: "孤独死の現場を清掃する仕事が増えているらしい。", og: "Heard jobs for cleaning lonely deaths are up. Sad reality.", src: "News Blog", time: "1d ago"},
+                        {jp: "移民への風当たりが強くなり、寛容さが失われていく。", og: "Hate against immigrants is up; tolerance is fading.", src: "X / UK", time: "1d ago"},
+                        {jp: "ロンドンの雨は、昔より冷たく感じる。", og: "London rain feels colder than it used to.", src: "Reddit / London", time: "1d ago"}
+                    ]
+                },
+                'Future': {
+                    summary: "「ポスト・ブレグジットの閉塞」。金融都市の輝きは失われ、再生の道筋も見えない。",
+                    feeds: [
+                        {jp: "未来のロンドンは、金持ちのための博物館になるだろう。", og: "Future London will be a museum for the wealthy.", src: "Guardian", time: "5h ago"},
+                        {jp: "EUに戻ることもできず、ただ漂流している感覚だ。", og: "Can't go back to EU, just feels like drifting.", src: "Reddit", time: "10h ago"},
+                        {jp: "若者は皆、ベルリンやバルセロナを目指している。", og: "Youth are all heading for Berlin or Barcelona.", src: "LinkedIn", time: "15h ago"},
+                        {jp: "テックハブになると言うが、生活費が高すぎて誰も来ない。", og: "They say 'Tech Hub', but no one comes due to costs.", src: "Tech News", time: "20h ago"},
+                        {jp: "子供たちに、この国で希望を持てと言うのは残酷だ。", og: "It's cruel to tell kids to have hope in this country.", src: "X / Parent", time: "1d ago"},
+                        {jp: "10年後のNHSが残っているとは思えない。", og: "I don't think the NHS will exist in 10 years.", src: "BBC Feed", time: "1d ago"},
+                        {jp: "かつての栄光を語る老人に、未来を語る力はない。", og: "Elderly talking past glory can't talk about the future.", src: "Reddit", time: "1d ago"},
+                        {jp: "氾濫する前に、経済が氾濫してしまった。", og: "Economy flooded before the Thames did.", src: "Finance News", time: "1d ago"},
+                        {jp: "イノベーションは、この不条理な官僚主義に殺される。", og: "Innovation will be killed by this absurd bureaucracy.", src: "Medium", time: "1d ago"},
+                        {jp: "ロンドンの未来は、もはやロンドンっ子の手にはない。", og: "The future of London is no longer in Londoners' hands.", src: "X / London", time: "1d ago"}
+                    ]
+                }
+            },
+            'Milan': {
+                'Economy': {
+                    summary: "「見栄の限界」。優雅な外見を維持するコストが内面を空虚にする。",
+                    feeds: [
+                        {jp: "ミラノの家賃はトップクラスなのに、給料は20年前と同じ。", og: "Affitti alle stelle, ma gli stipendi sono fermi a 20 anni fa.", src: "Corriere", time: "3h ago"},
+                        {jp: "優雅な外見を維持するコストが、内面を空虚にさせていく。", og: "Il costo dell'apparenza ci sta svuotando dentro.", src: "X / Milano", time: "5h ago"},
+                        {jp: "ミラノは富裕層の遊び場。家を持つのは『神話』だ。", og: "Milano è un parco giochi per ricchi. Comprare casa è un mito.", src: "Reddit / Italy", time: "8h ago"},
+                        {jp: "ファッション・ウィークが街の貧困を隠している。", og: "La settimana della moda nasconde la povertà della città.", src: "Repubblica", time: "12h ago"},
+                        {jp: "若者は皆実家から出られない。独立という概念が消失した。", og: "I giovani non possono uscire di casa. L'indipendenza è sparita.", src: "X", time: "16h ago"},
+                        {jp: "ランチ一食の価格が、半日分の労働に等しい。", og: "Il prezzo di un pranzo equivale a mezza giornata di lavoro.", src: "Reddit", time: "20h ago"},
+                        {jp: "観光客への笑顔の裏で、私たちは支払いに追われている。", og: "Dietro i sorrisi ai turisti, siamo inseguiti dai debiti.", src: "Milan Today", time: "1d ago"},
+                        {jp: "メイド・イン・イタリーの誇りも、模倣品に負けている。", og: "L'orgoglio del Made in Italy sta perdendo contro le copie.", src: "Finance Feed", time: "1d ago"},
+                        {jp: "伝統を守る余裕がない。生き残るために働いている。", og: "Non possiamo permetterci la tradizione. Lavoriamo per sopravvivere.", src: "X / Milan", time: "1d ago"},
+                        {jp: "美しさを切り売りして延命している都市だ。", og: "Una città che vende la sua bellezza per restare in vita.", src: "Blog", time: "1d ago"}
+                    ]
+                },
+                'Society': {
+                    summary: "「家族という最後の砦」。公的支援の機能不全と共同体の重圧。",
+                    feeds: [
+                        {jp: "両親がいなければ、私は今頃路上生活をしていた。", og: "Senza i miei genitori, sarei per strada a quest'ora.", src: "Reddit", time: "4h ago"},
+                        {jp: "近所付き合いは、いつもゴシップと嫉妬に満ちている。", og: "I rapporti di vicinato sono pieni di pettegolezzi.", src: "X / Milano", time: "8h ago"},
+                        {jp: "教会へ行く人が減り、街の道徳的な中心がなくなった。", og: "Meno persone vanno in chiesa; il centro morale è sparito.", src: "Society Blog", time: "12h ago"},
+                        {jp: "孤独を感じるのは、家族という輪に入れない人々だ。", og: "La solitudine è per chi non entra nel cerchio della famiglia.", src: "Reddit", time: "16h ago"},
+                        {jp: "高齢者の世話を家族が抱え込み、共倒れになりかけている。", og: "L'assistenza agli anziani sta facendo crollare le famiglie.", src: "Local News", time: "20h ago"},
+                        {jp: "若者の声が届かない。この街は老いた権力者のものだ。", og: "Le voci dei giovani non arrivano. La città è dei vecchi.", src: "X", time: "1d ago"},
+                        {jp: "広場（Piazza）での会話も、もはや政治への不満だけだ。", og: "Le chiacchiere in piazza sono solo lamentele.", src: "Milan Today", time: "1d ago"},
+                        {jp: "誰かを助ける余裕がない。自分の家族を守るだけで精一杯。", og: "Nessuno aiuta gli altri. Pensiamo solo alla nostra famiglia.", src: "Diary", time: "1d ago"},
+                        {jp: "友情よりもまずは血縁。その閉鎖性が息苦しい。", og: "Prima il sangue, poi l'amicizia. Questa chiusura soffoca.", src: "Reddit / Italy", time: "1d ago"},
+                        {jp: "ミラノの夜は、寂しさだけが贅沢に漂っている。", og: "Nelle notti milanesi fluttua solo una lussuosa solitudine.", src: "Medium", time: "1d ago"}
+                    ]
+                },
+                'Future': {
+                    summary: "「歴史への逃避」。未来を提示できない社会の、過去の栄光への閉じこもり。",
+                    feeds: [
+                        {jp: "新しいことは何も起きない。歴史の貯金で生きている。", og: "Non succede nulla di nuovo. Viviamo con i risparmi della storia.", src: "Corriere", time: "6h ago"},
+                        {jp: "未来はドイツや北欧にあるものだと思っている。", og: "Pensiamo che il futuro sia in Germania o nel Nord Europa.", src: "Reddit", time: "12h ago"},
+                        {jp: "ミラノのデザインも、今はただの過去の焼き増しだ。", og: "Il design milanese è solo un rifacimento del passato.", src: "Design Blog", time: "18h ago"},
+                        {jp: "子供たちには海外へ行けと言っている。ここには未来がない。", og: "Dico ai miei figli di andarsene. Qui non c'è futuro.", src: "X / Milan", time: "1d ago"},
+                        {jp: "AIが導入されても、この官僚主義は変わらないだろう。", og: "Anche con l'IA, questa burocrazia non cambierà.", src: "Tech Feed", time: "1d ago"},
+                        {jp: "10年後の街が、ブランドの看板だけの抜け殻に見える。", og: "Tra 10 anni la città sembrerà un guscio di insegne.", src: "Medium", time: "1d ago"},
+                        {jp: "イノベーションより、今夕のアペリティーボが大事だ。", og: "L'aperitivo di stasera conta più dell'innovazione.", src: "X / Life", time: "1d ago"},
+                        {jp: "私たちの世代で、イタリアというプロジェクトは終わる。", og: "Sento che il progetto Italia finirà con la nostra gen.", src: "Repubblica", time: "1d ago"},
+                        {jp: "未来を語る人は、ここでは空想家扱いされる。", og: "Chi parla di futuro qui viene trattato come un sognatore.", src: "Reddit / Milan", time: "1d ago"},
+                        {jp: "希望とは、明日も昨日と同じ生活ができることだ。", og: "La speranza è poter vivere domani come ieri.", src: "Milan Today", time: "1d ago"}
+                    ]
+                }
+            },
+            'Lagos': {
+                'Economy': {
+                    summary: "「通貨の崩壊」。ナイラの乱高下により、物々交換に近い経済が台頭。",
+                    feeds: [
+                        {jp: "昨日買えたパンが今日は倍。ナイラを持つのはリスクだ。", og: "Bread wey I buy yesterday don double today. Naira na risk.", src: "X / Nigeria", time: "1h ago"},
+                        {jp: "中間層が消滅した。富裕層か困窮層かだけだ。", og: "Middle class don finish. Na only rich and poor remain.", src: "Lagos Post", time: "3h ago"},
+                        {jp: "暗号通貨こそが命綱。デジタル資産を信じている。", og: "Crypto na our life wire. We trust digital pass bank.", src: "Reddit / Crypto", time: "6h ago"},
+                        {jp: "通貨が紙屑になる速度に、夢は追いつけない。", og: "Naira dey fall faster than our dreams.", src: "Nairaland", time: "9h ago"},
+                        {jp: "燃料代か食料代か。どこを削ればいいかわからない。", og: "Fuel money or food money? I no even know wetin to cut.", src: "X / Lagos", time: "12h ago"},
+                        {jp: "ラゴスの活気は、生存のための必死な足掻きだ。", og: "Lagos energy na just hustle to stay alive.", src: "YouTube", time: "16h ago"},
+                        {jp: "政府は助けてくれない。私たちは自力で生きている。", og: "Govt no go help us. We dey survive on our own strength.", src: "Nairaland", time: "20h ago"},
+                        {jp: "ビジネスの成否はドルの調達で決まる。", og: "Everything for business na dollar. USD na king.", src: "Finance News", time: "1d ago"},
+                        {jp: "毎日の物価上昇が、精神を削り取っていく。", og: "Daily price increase dey scatter our head.", src: "X / Nigeria", time: "1d ago"},
+                        {jp: "この街で生き残ることは、毎日が戦場だ。", og: "To survive for this city na war every day.", src: "Blog / Lagos", time: "1d ago"}
+                    ]
+                },
+                'Society': {
+                    summary: "「カオスの中の連帯」。私設コミュニティが崩壊したインフラを支えている。",
+                    feeds: [
+                        {jp: "警察はあてにならない。自分の身は自分で守れ。", og: "Police no go help you. Guard yourself for Lagos.", src: "Lagos Post", time: "5h ago"},
+                        {jp: "近所同士の助け合いだけが、生き残れる理由だ。", og: "Na only neighbor help neighbor make we still dey breathe.", src: "Nairaland", time: "10h ago"},
+                        {jp: "渋滞の中の物売り、彼らもまた街の血流だ。", og: "Vendors for traffic na the real blood of this city.", src: "YouTube", time: "14h ago"},
+                        {jp: "家族の絆が強すぎて、それが時に足枷になる。", og: "Family bond strong well well, but sometimes e be like chain.", src: "X", time: "18h ago"},
+                        {jp: "孤独を感じる暇などない。常に誰かと競争している。", og: "No time to feel lonely. Na struggle we dey every second.", src: "Reddit", time: "1d ago"},
+                        {jp: "若者の音楽（アフロビーツ）が、唯一の希望だ。", og: "Afrobeats na the only hope wey young people get.", src: "Insta", time: "1d ago"},
+                        {jp: "貧困の中でも、私たちは笑い方を忘れていない。", og: "Inside this poverty, we still know how to laugh.", src: "Nairaland", time: "1d ago"},
+                        {jp: "誰かが成功すれば、村全体が恩恵を期待する。", og: "If one person blow, the whole village go expect share.", src: "X", time: "1d ago"},
+                        {jp: "教育が脱出の鍵だが、機会は平等ではない。", og: "School na the key, but the door no open for everybody.", src: "News Blog", time: "1d ago"},
+                        {jp: "ラゴスは、世界で最も過酷で、最もパワフルな場所だ。", og: "Lagos na the hardest and most powerful place for world.", src: "Medium", time: "1d ago"}
+                    ]
+                },
+                'Future': {
+                    summary: "「デジタル・フロンティア」。デジタル空間に新たな国家を構築する熱量。",
+                    feeds: [
+                        {jp: "未来はシリコンバレーではなく、ラゴスの裏通りから生まれる。", og: "Future go come from Lagos streets, no be Silicon Valley.", src: "Tech News", time: "6h ago"},
+                        {jp: "テクノロジーが、腐敗したシステムを回避する手段になる。", og: "Tech na how we go take bypass all these corrupt systems.", src: "X / Future", time: "11h ago"},
+                        {jp: "私たちは、物理的な国境を越えて世界と繋がっている。", og: "We connect with the world pass all these borders.", src: "LinkedIn", time: "16h ago"},
+                        {jp: "10年後のナイジェリアは、アフリカのデジタル心臓部になる。", og: "Nigeria go be Africa digital heartbeat in 10 years.", src: "X", time: "22h ago"},
+                        {jp: "今の苦しみは、新しい時代への産みの苦しみだ。", og: "All this suffer na just birth pain for new age.", src: "Nairaland", time: "1d ago"},
+                        {jp: "教育された若者が、この国を根底から変えていくだろう。", og: "Young people wey go school go change this country scatter.", src: "Blog", time: "1d ago"},
+                        {jp: "インフラが整えば、私たちは誰にも負けない。", og: "If light and road set, nobody for world fit follow us.", src: "X / Lagos", time: "1d ago"},
+                        {jp: "未来への期待は、自分たちの手で作り出すものだ。", og: "Na we go create the hope wey we want see.", src: "Medium", time: "1d ago"},
+                        {jp: "世界は私たちを憐れむが、私たちは追い抜く準備をしている。", og: "Dem dey pity us, but we dey set to pass dem all.", src: "Reddit", time: "1d ago"},
+                        {jp: "ラゴスの朝日は、いつも新しい挑戦の始まりだ。", og: "Lagos sunrise na signal say another hustle don start.", src: "X / Nigeria", time: "1d ago"}
+                    ]
+                }
+            }
         };
 
         function switchCategory(cat, btn) {
             currentCategory = cat;
             document.querySelectorAll('.brand-btn').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
-            document.documentElement.style.setProperty('--accent-color', data[cat].color);
+            
+            const colors = { 'Economy': '#E02020', 'Society': '#007AFF', 'Future': '#AF52DE' };
+            const color = colors[cat];
+            document.documentElement.style.setProperty('--accent-color', color);
             document.getElementById('brand-logo').innerText = `Matrix ${cat} Analysis`;
-            calculateHeatmap();
-        }
-
-        function calculateHeatmap() {
-            document.querySelectorAll('.city-node').forEach(node => {
-                node.className = 'city-node ' + (currentCategory === 'Economy' ? 'neg' : 'neu');
-            });
+            document.getElementById('brand-logo').style.color = color;
+            document.getElementById('accent-count').style.color = color;
+            
+            document.querySelectorAll('.node-inner').forEach(n => n.style.background = color);
+            document.querySelectorAll('.node-outer').forEach(n => n.style.borderColor = color);
         }
 
         function openDirectReport(city) {
-            const catData = data[currentCategory];
-            const cityData = catData.cities[city] || { summary: "Analysis in progress for this category...", feeds: Array(4).fill({jp:"データ収集中...", og:"Processing..."}) };
+            const cityData = cityDatabase[city] && cityDatabase[city][currentCategory];
+            if (!cityData) return;
             
-            // レポート内容のセット
             document.getElementById('rep-sub-title').innerText = `${currentCategory.toUpperCase()} STRATEGIC REPORT`;
             document.getElementById('rep-headline').innerText = city;
             document.getElementById('rep-summary').innerText = cityData.summary;
-            document.getElementById('rep-sec-label').style.color = catData.color;
+            document.getElementById('rep-summary').style.borderColor = getComputedStyle(document.documentElement).getPropertyValue('--accent-color');
+            document.getElementById('raw-label').style.color = getComputedStyle(document.documentElement).getPropertyValue('--accent-color');
 
             const voiceContainer = document.getElementById('rep-voices');
             voiceContainer.innerHTML = cityData.feeds.map((f, i) => `
                 <div class="raw-item-rep">
                     <div class="raw-city-rep">RAW FEED 0${i+1}</div>
-                    <div style="font-size:15px; font-weight:600; margin-bottom:8px; line-height:1.7;">${f.jp}</div>
-                    <div style="font-size:12px; color:#a1a1a6;">${f.og}</div>
+                    <div class="raw-meta">
+                        <span class="raw-src">SOURCE: ${f.src}</span>
+                        <span class="raw-time">TIME: ${f.time}</span>
+                    </div>
+                    <div class="raw-jp">${f.jp}</div>
+                    <div class="raw-og">${f.og}</div>
                 </div>
             `).join('');
 
-            // マップを引かせてレポートを表示
             document.getElementById('map-page').style.opacity = "0";
-            document.getElementById('map-page').style.transform = "scale(0.95)";
             document.getElementById('report-layer').style.display = 'flex';
             setTimeout(() => document.getElementById('report-layer').classList.add('active'), 10);
         }
@@ -263,7 +482,6 @@
             setTimeout(() => {
                 document.getElementById('report-layer').style.display = 'none';
                 document.getElementById('map-page').style.opacity = "1";
-                document.getElementById('map-page').style.transform = "scale(1)";
             }, 600);
         }
 
@@ -273,7 +491,6 @@
                 const tile = document.createElement('div'); tile.className = 'tile';
                 tile.style.opacity = Math.random() * 0.3; bg.appendChild(tile);
             }
-            calculateHeatmap();
         };
     </script>
 </body>
